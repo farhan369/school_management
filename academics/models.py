@@ -2,16 +2,10 @@ from django.db import models
 import account.models
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
 # Create your models here.
 
 class Classroom(models.Model):
-    standard = models.IntegerField(validators=[
-            MaxValueValidator(12),
-            MinValueValidator(1)
-        ])
-    division = models.CharField(max_length=2)
-    teacher  = models.ForeignKey(account.models.Teacher,on_delete=models.CASCADE)
-
     """
 Model to store Classroom details
 Attribs:
@@ -19,14 +13,14 @@ Attribs:
     division : division od class A-Z ETC
     teacher  : to know which class student belongs foreign key from class Teacher in accounts
     """
+    standard = models.IntegerField(null=True,blank=True,default=1)
+    division = models.CharField(max_length=2,null=True,blank=True,default='A')
+    teacher  = models.ForeignKey(account.models.Teacher,on_delete=models.CASCADE)
+
+   
 
 class Exam(models.Model):
-    examname      = models.CharField(max_length=20,unique=False)
-    classroom = models.ForeignKey(Classroom,on_delete=models.CASCADE)
-    start_time    = models.DateTimeField()
-    end_time      = models.DateTimeField()
-
-"""
+    """
 Model to store values for formula fields.
 
 Attribs:
@@ -36,12 +30,15 @@ Attribs:
     start_time  : time when exam can be written
     end_time    : time when exam is expired
     """
+    exam          = models.CharField(max_length=20,unique=False,blank=True)
+    classroom     = models.ForeignKey(Classroom,on_delete=models.CASCADE)
+    start_time    = models.DateTimeField(null=True,blank=True)
+    end_time      = models.DateTimeField(null=True,blank=True)
+
+
 
 class Question(models.Model):
-    Questionname = models.CharField(max_length=50)
-    exam         = models.ForeignKey(Exam,on_delete=models.CASCADE)
-
-"""
+    """
 Model to store values for formula fields.
 
 Attribs:
@@ -49,27 +46,32 @@ Attribs:
     Questionname: question itself
     exam   : foreign key to know which exam holds the question
     """
+    question = models.CharField(max_length=50,blank=True,default=None)
+    exam     = models.ForeignKey(Exam,on_delete=models.CASCADE)
+
+
 
 class Option(models.Model):
-    is_correct = models.BooleanField()
-    optionname = models.CharField(max_length=50)
-    question   = models.ForeignKey(Question,on_delete=models.CASCADE)
-"""
+    """
     Model to store all options 
     Attribs:
     is_correct   : denotes whether the option is correct
     optionname   : option itself
     question     : foreign key to know which question holds the option
     """
+    is_correct = models.BooleanField(null=True,blank=True,default=False)
+    option     = models.CharField(max_length=50,default=None,blank=True)
+    question   = models.ForeignKey(Question,on_delete=models.CASCADE)
+
 
 class Response(models.Model):
-    option      = models.ForeignKey(Option, on_delete=models.CASCADE)
-    student     = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
-    
-"""
+    """
     Model to the response a student to a question
     Attribs:
     option   :  foreign key to know which option was selected
     student  :  foreign key to know which student choose 
     
     """
+    option      = models.ManyToManyField(Option,related_name='selected_options',blank=True,null=True)
+    student     = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
+    

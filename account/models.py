@@ -4,30 +4,13 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from . import constants as account_constants
+
+
 
 class Account(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField(unique=True, null=True, db_index=True)
-    birth_date = models.DateField(null=True, blank=True)
-    USER_TYPE_CHOICES = (
-      (1, 'student'),
-      (2, 'teacher'),
-      (3, 'admin'),
-  )
 
-    user_type = models.PositiveSmallIntegerField(default=2, choices=USER_TYPE_CHOICES)
-
-    def __str__(self):
-        return self.user.username
-
- 
-    
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Account.objects.create(user=instance)
-
-"""
+    """
 Model to store values for user fields.
 
 Attribs:
@@ -47,11 +30,23 @@ Inherited Attribs:
     date_joined : when the account was created
 
 """
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    email = models.EmailField(unique=True, null=True, db_index=True)
+    birth_date = models.DateField(null=True, blank=True)
+    user_type = models.PositiveSmallIntegerField(default=2, choices=account_constants.USER_TYPE_CHOICES,null=True,blank=True)
+
+    def __str__(self):
+        return self.user.username
+
+ 
+    
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Account.objects.create(user=instance)
+
 
 class Student(models.Model):
-    studentuser     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
-    classroom       = models.ForeignKey('academics.Classroom',on_delete=models.CASCADE,default=1)
-
     """
 Model to store values for student.
 
@@ -60,12 +55,16 @@ Attribs:
     classroom   : to know which class student belongs
     
     """
-class Teacher(models.Model):
-    Teacheruser     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
+    user            = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
+    classroom       = models.ForeignKey('academics.Classroom',on_delete=models.CASCADE,default=1)
 
-    
-"""
+
+class Teacher(models.Model):
+    """
 model to store teacher details . created to use as foreign key to class
 Attribs:
     studentuser : OneToOneField to get attribute of Account
     """
+    user     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
+
+    

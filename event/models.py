@@ -1,13 +1,11 @@
 from django.db import models
 import account.models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from . import constants as event_constants
 
 
 # Create your models here.
-class Sports_festival(models.Model):
-    festname    = models.CharField(max_length=20)
-    from_date    = models.DateField()
-    to_date      = models.DateField()
+class SportsFestival(models.Model):
     """
 Model to store sports_festival details
 Attribs:
@@ -15,20 +13,13 @@ Attribs:
     from_date : start date of fest
     to_date  : end date of fest
     """
+    fest         = models.CharField(max_length=20)
+    from_date    = models.DateField(null=True,blank=True)
+    to_date      = models.DateField(null=True,blank=True)
+    
 
 
 class Event(models.Model):
-    EVENT_TYPE_CHOICE = (
-        (0,'Time'),
-        (1,'Distance'),
-    )
-    
-    eventname   = models.CharField(max_length=25)
-    fest        = models.ForeignKey(Sports_festival,on_delete=models.CASCADE)
-    class_limit = models.IntegerField()
-    start_time    = models.DateTimeField()
-    end_time      = models.DateTimeField()
-    event_type = models.IntegerField(default=0,choices=EVENT_TYPE_CHOICE)
     """
     Model to store Event details
 Attribs:
@@ -40,23 +31,27 @@ Attribs:
     event_type   : type of event showing whether time or distance is used to declare the winner
     """
 
-class Event_registration(models.Model):
-    event = models.ForeignKey(Event,on_delete=models.CASCADE)
-    student = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
-"""
+    
+    event          = models.CharField(max_length=25,blank=True,default=None)
+    fest           = models.ForeignKey(SportsFestival,on_delete=models.CASCADE)
+    class_limit    = models.IntegerField(null=True,blank=True,default=2)
+    start_time     = models.DateTimeField(null=True,blank=True)
+    end_time       = models.DateTimeField(null=True,blank=True)
+    event_type     = models.IntegerField(default=0,choices=event_constants.EVENT_TYPE_CHOICE,null=True,blank=True)
+    
+
+class EventRegistration(models.Model):
+    """
 Model to store which student register to which event details
 Attribs:
     event : foriegn key of the event
     student : foriegn key of student
     """
+    event   = models.ForeignKey(Event,on_delete=models.CASCADE)
+    student = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
 
-class Try_result(models.Model):
-    eventreg = models.ForeignKey(Event_registration,on_delete=models.CASCADE)
-    tryno    = models.IntegerField(validators=[
-            MaxValueValidator(3),
-            MinValueValidator(1)
-        ])
-    result   = models.IntegerField()
+
+class Try(models.Model):
     """
 Model to store the score of each attempt of student details
 Attribs:
@@ -64,3 +59,7 @@ Attribs:
     tryno    : counts the attempt max=3
     result   : store the score of each attempt
     """
+    eventreg = models.ForeignKey(EventRegistration,on_delete=models.CASCADE)
+    tryno    = models.IntegerField(null=True,blank=True,default=2)
+    result   = models.IntegerField(null=True,blank=True,default=2)
+    

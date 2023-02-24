@@ -1,10 +1,10 @@
 from django.contrib import admin
-from .models import Sports_festival,Event,Event_registration,Try_result
+from .models import SportsFestival,Event,EventRegistration,Try
 
 # Register your models here.
 
 
-admin.site.register(Sports_festival)
+admin.site.register(SportsFestival)
 admin.site.register(Event)
-admin.site.register(Event_registration)
-admin.site.register(Try_result)
+admin.site.register(EventRegistration)
+admin.site.register(Try)
