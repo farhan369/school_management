@@ -15,7 +15,7 @@ class Account(models.Model):
       (3, 'admin'),
   )
 
-    user_type = models.PositiveSmallIntegerField(default=1, choices=USER_TYPE_CHOICES)
+    user_type = models.PositiveSmallIntegerField(default=2, choices=USER_TYPE_CHOICES)
 
     def __str__(self):
         return self.user.username
@@ -28,13 +28,13 @@ def create_user_profile(sender, instance, created, **kwargs):
         Account.objects.create(user=instance)
 
 """
-Model to store values for formula fields.
+Model to store values for user fields.
 
 Attribs:
     user        : OneToOneField to get attribute of django User
     email       : Made email compulsory
     birth_date  : date of birth of the user
-    user_type   : to identify whether the user is student,teacher,aadmin
+    user_type   : to identify whether the user is student,teacher,admin
 Inherited Attribs:
     username    : username
     first_name  : first_name of the User.
@@ -48,5 +48,24 @@ Inherited Attribs:
 
 """
 
+class Student(models.Model):
+    studentuser     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
+    classroom       = models.ForeignKey('academics.Classroom',on_delete=models.CASCADE,default=1)
 
+    """
+Model to store values for student.
 
+Attribs:
+    studentuser : OneToOneField to get attribute of Account
+    classroom   : to know which class student belongs
+    
+    """
+class Teacher(models.Model):
+    Teacheruser     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
+
+    
+"""
+model to store teacher details . created to use as foreign key to class
+Attribs:
+    studentuser : OneToOneField to get attribute of Account
+    """
