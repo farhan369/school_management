@@ -72,6 +72,6 @@ class Response(models.Model):
     student  :  foreign key to know which student choose 
     
     """
-    option      = models.ManyToManyField(Option,related_name='selected_options',blank=True,null=True)
+    option      = models.ManyToManyField(Option,related_name='selected_options',blank=True,)
     student     = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
     

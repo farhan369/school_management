@@ -37,7 +37,7 @@ Attribs:
     class_limit    = models.IntegerField(null=True,blank=True,default=2)
     start_time     = models.DateTimeField(null=True,blank=True)
     end_time       = models.DateTimeField(null=True,blank=True)
-    event_type     = models.IntegerField(default=0,choices=event_constants.EVENT_TYPE_CHOICE,null=True,blank=True)
+    event_type     = models.IntegerField(default=event_constants.TIME,choices=event_constants.EVENT_TYPE_CHOICE,null=True,blank=True)
     
 
 class EventRegistration(models.Model):

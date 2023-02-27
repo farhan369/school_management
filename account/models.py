@@ -18,8 +18,7 @@ Attribs:
     email       : Made email compulsory
     birth_date  : date of birth of the user
     user_type   : to identify whether the user is student,teacher,admin
-Inherited Attribs:
-    username    : username
+    username         : username
     first_name  : first_name of the User.
     last_name   : last name of the User.
     password    : password set for auth
@@ -33,7 +32,7 @@ Inherited Attribs:
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     email = models.EmailField(unique=True, null=True, db_index=True)
     birth_date = models.DateField(null=True, blank=True)
-    user_type = models.PositiveSmallIntegerField(default=2, choices=account_constants.USER_TYPE_CHOICES,null=True,blank=True)
+    user_type = models.PositiveSmallIntegerField(default=account_constants.STUDENT, choices=account_constants.USER_TYPE_CHOICES,null=True, blank=True)
 
     def __str__(self):
         return self.user.username
