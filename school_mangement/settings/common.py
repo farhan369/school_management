@@ -20,10 +20,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%w&z0^2)oezdd%-uj_ryhl16yc@!ub25tm@bc6h5o0%m7w_22-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0']
 
@@ -79,10 +77,10 @@ WSGI_APPLICATION = 'school_mangement.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'school',
-        'USER':'farhaanfm',
-        'PASSWORD':'eoeROY1',
-        'HOST':'localhost',
+        'NAME': '',
+        'USER':'',
+        'PASSWORD':'',
+        'HOST':'',
         'PORT':'',
             }
 }
