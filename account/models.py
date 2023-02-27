@@ -51,7 +51,7 @@ class Student(models.Model):
 Model to store values for student.
 
 Attribs:
-    studentuser : OneToOneField to get attribute of Account
+    user        : OneToOneField to get attribute of Account
     classroom   : to know which class student belongs
     
     """
@@ -63,7 +63,7 @@ class Teacher(models.Model):
     """
 model to store teacher details . created to use as foreign key to class
 Attribs:
-    studentuser : OneToOneField to get attribute of Account
+    user : OneToOneField to get attribute of Account
     """
     user     = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
 

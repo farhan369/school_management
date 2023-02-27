@@ -9,9 +9,9 @@ class SportsFestival(models.Model):
     """
 Model to store sports_festival details
 Attribs:
-    festname : name of the fest
-    from_date : start date of fest
-    to_date  : end date of fest
+    fest        : name of the fest
+    from_date   : start date of fest
+    to_date     : end date of fest
     """
     fest         = models.CharField(max_length=20)
     from_date    = models.DateField(null=True,blank=True)
@@ -23,7 +23,7 @@ class Event(models.Model):
     """
     Model to store Event details
 Attribs:
-    eventname    : name of the event
+    event        : name of the event
     fest         : shows which fest this event belongs to
     class_limit  : to know upto which class standard this event is open to
     start_time   : when the event starts
@@ -44,7 +44,7 @@ class EventRegistration(models.Model):
     """
 Model to store which student register to which event details
 Attribs:
-    event : foriegn key of the event
+    event   : foriegn key of the event
     student : foriegn key of student
     """
     event   = models.ForeignKey(Event,on_delete=models.CASCADE)
@@ -55,11 +55,11 @@ class Try(models.Model):
     """
 Model to store the score of each attempt of student details
 Attribs:
-    eventreg : foriegn key of the event registration table
-    tryno    : counts the attempt max=3
-    result   : store the score of each attempt
+    event_reg : foriegn key of the event registration table
+    try_no    : counts the attempt max=3
+    result    : store the score of each attempt
     """
-    eventreg = models.ForeignKey(EventRegistration,on_delete=models.CASCADE)
-    tryno    = models.IntegerField(null=True,blank=True,default=2)
+    event_reg = models.ForeignKey(EventRegistration,on_delete=models.CASCADE)
+    try_no    = models.IntegerField(null=True,blank=True,default=2)
     result   = models.IntegerField(null=True,blank=True,default=2)
     

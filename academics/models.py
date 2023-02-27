@@ -25,7 +25,7 @@ Model to store values for formula fields.
 
 Attribs:
     Model to store all exam details
-    examname    : name of exam
+    exam        : name of exam
     classroom   : foreign key to know which class is eligible to write exam
     start_time  : time when exam can be written
     end_time    : time when exam is expired
@@ -43,7 +43,7 @@ Model to store values for formula fields.
 
 Attribs:
     Model to store all questions
-    Questionname: question itself
+    question: question itself
     exam   : foreign key to know which exam holds the question
     """
     question = models.CharField(max_length=50,blank=True,default=None)
@@ -56,7 +56,7 @@ class Option(models.Model):
     Model to store all options 
     Attribs:
     is_correct   : denotes whether the option is correct
-    optionname   : option itself
+    option       : option itself
     question     : foreign key to know which question holds the option
     """
     is_correct = models.BooleanField(null=True,blank=True,default=False)
