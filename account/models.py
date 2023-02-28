@@ -16,9 +16,8 @@ Model to store values for user fields.
 Attribs:
     user        : OneToOneField to get attribute of django User
     email       : Made email compulsory
-    birth_date  : date of birth of the user
     user_type   : to identify whether the user is student,teacher,admin
-    username         : username
+    username    : username
     first_name  : first_name of the User.
     last_name   : last name of the User.
     password    : password set for auth
@@ -30,8 +29,6 @@ Attribs:
 
 """
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    email = models.EmailField(unique=True, null=True, db_index=True)
-    birth_date = models.DateField(null=True, blank=True)
     user_type = models.PositiveSmallIntegerField(default=account_constants.STUDENT, choices=account_constants.USER_TYPE_CHOICES,null=True, blank=True)
 
     def __str__(self):
@@ -39,10 +36,7 @@ Attribs:
 
  
     
-@receiver(post_save, sender=User)
-def create_user_profile(sender, instance, created, **kwargs):
-    if created:
-        Account.objects.create(user=instance)
+
 
 
 class Student(models.Model):
