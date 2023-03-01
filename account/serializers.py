@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Account
+from .models import Account,Teacher,Student
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+
+
 class AccountCreateSerializer(serializers.ModelSerializer):
 
     # This serializer is used to create an admin user 
@@ -106,5 +108,8 @@ class AuthTokenSerializer(serializers.Serializer):
 
         return attrs
 
-    
+
+
+
+
     

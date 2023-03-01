@@ -9,19 +9,40 @@ class UserTypePermission(BasePermission):
     """
 
     def has_permission(self, request, view):
-        user_type = request.user.user_type
-        return user_type == account_constants.ADMIN 
+        account   = request.user.account
+        user_type = account.user_type
+        user_type = int(user_type)
+        return user_type == account_constants.ADMIN
     
 
-class UserCreationPermission(BasePermission):
+class AdminCreationPermission(BasePermission):
     #checks whether the request is to make a admin account
     def has_permission(self, request, view):
         
         user_type = request.data.get('user_type')
         user_type = int(user_type)
     
-        if user_type == account_constants.ADMIN :
-            return True
+        return user_type == account_constants.ADMIN 
+        
+
+class TeacherCreationPermission(BasePermission):
+    #checks whether the new creating user is Teacher
+    def has_permission(self, request, view):
+        
+        user_type = request.data.get('user_type')
+        user_type = int(user_type)
+    
+        return user_type == account_constants.TEACHER 
+    
+class StudentCreationPermission(BasePermission):
+    #checks whether the new creating user is Student
+    def has_permission(self, request, view):
+        
+        user_type = request.data.get('user_type')
+        user_type = int(user_type)
+    
+        return user_type == account_constants.STUDENT 
+             
         
 
 
