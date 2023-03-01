@@ -29,7 +29,7 @@ ALLOWED_HOSTS = ['0.0.0.0']
 # Application definition
 
 INSTALLED_APPS = [
-    #default django apps
+    # default django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -37,15 +37,21 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     
-    #user defined apps
+    # user defined apps
     'academics',
     'account',
     'event',
 
-    #third party apps
+    # third party apps
     'rest_framework',
+    'rest_framework_simplejwt',
+    'rest_framework.authtoken',
+
 
 ]
+
+# To set up authentication using AuthToken
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

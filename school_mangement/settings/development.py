@@ -22,8 +22,17 @@ INSTALLED_APPS = [
 
     #third party apps
     'rest_framework',
+    'rest_framework.authtoken',
 
 ]
+# To set up authentication using AuthToken
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated', )
+}
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost','127.0.0.1']
 

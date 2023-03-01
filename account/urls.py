@@ -3,6 +3,9 @@ from .views import *
 
 
 urlpatterns = [
-    #admin signup url
-    path('signup/',SignUpView.as_view(),name='signup')
-]
+    #create admin url
+    path('signup/',SignUpView.as_view(),name='signup'),
+    path('login/',ObtainAuthTokenView.as_view(),name='login'),
+    path('hello/', HelloAPIView.as_view(), name='hello'),
+
+]   
