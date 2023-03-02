@@ -49,7 +49,7 @@ Attribs:
     
     """
     user            = models.OneToOneField(Account,on_delete=models.CASCADE,primary_key=True)
-    classroom       = models.ForeignKey('academics.Classroom',on_delete=models.CASCADE,default=1)
+    classroom       = models.ForeignKey('academics.Classroom',on_delete=models.CASCADE,default=1,related_name='students')
 
 
 class Teacher(models.Model):

@@ -15,7 +15,7 @@ Attribs:
     """
     standard = models.IntegerField(null=True,blank=True,default=1)
     division = models.CharField(max_length=2,null=True,blank=True,default='A')
-    teacher  = models.ForeignKey(account.models.Teacher,on_delete=models.CASCADE)
+    teacher  = models.ForeignKey(account.models.Teacher,on_delete=models.CASCADE,related_name='classroom')
 
    
 
@@ -31,7 +31,7 @@ Attribs:
     end_time    : time when exam is expired
     """
     exam          = models.CharField(max_length=20,unique=False,blank=True)
-    classroom     = models.ForeignKey(Classroom,on_delete=models.CASCADE)
+    classroom     = models.ForeignKey(Classroom,on_delete=models.CASCADE,related_name='exams')
     start_time    = models.DateTimeField(null=True,blank=True)
     end_time      = models.DateTimeField(null=True,blank=True)
 
@@ -47,7 +47,7 @@ Attribs:
     exam   : foreign key to know which exam holds the question
     """
     question = models.CharField(max_length=50,blank=True,default=None)
-    exam     = models.ForeignKey(Exam,on_delete=models.CASCADE)
+    exam     = models.ForeignKey(Exam,on_delete=models.CASCADE,related_name='questions')
 
 
 
@@ -61,7 +61,7 @@ class Option(models.Model):
     """
     is_correct = models.BooleanField(null=True,blank=True,default=False)
     option     = models.CharField(max_length=50,default=None,blank=True)
-    question   = models.ForeignKey(Question,on_delete=models.CASCADE)
+    question   = models.ForeignKey(Question,on_delete=models.CASCADE,related_name='options')
 
 
 class Response(models.Model):
@@ -73,5 +73,5 @@ class Response(models.Model):
     
     """
     option      = models.ManyToManyField(Option,related_name='selected_options',blank=True,)
-    student     = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
+    student     = models.ForeignKey(account.models.Student,on_delete=models.CASCADE,related_name='responses')
     

@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 from . import constants as account_constants
 from rest_framework.response import Response
 from rest_framework import status
+from academics.serializer import ClassroomSerializer
 
 
 
@@ -39,7 +40,7 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         return value
         """
     
-    
+    # to create Account object in DataBase
     def create(self, validated_data):
         user_data = validated_data.pop('user')
         user_type = validated_data['user_type']
@@ -54,11 +55,24 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
 
 class TeacherSerializer(serializers.ModelSerializer):
+    """ Serilizer used to create Teacher Object
+    """
     user = AccountCreateSerializer(required=True)
 
     class Meta:
         model = Teacher
         fields = ('user',)
+
+class StudentSerializer(serializers.ModelSerializer):
+    """ Serilizer used to create Student Object
+    """
+    user      = AccountCreateSerializer(required=True)
+    classroom = ClassroomSerializer(required = True)
+
+
+    class Meta:
+        model = Student
+        fields = ('user','classroom')
 
 
 

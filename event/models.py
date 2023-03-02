@@ -33,11 +33,14 @@ Attribs:
 
     
     event          = models.CharField(max_length=25,blank=True,default=None)
-    fest           = models.ForeignKey(SportsFestival,on_delete=models.CASCADE)
+    fest           = models.ForeignKey(SportsFestival,on_delete=models.CASCADE
+                                       ,related_name='events')
     class_limit    = models.IntegerField(null=True,blank=True,default=2)
     start_time     = models.DateTimeField(null=True,blank=True)
     end_time       = models.DateTimeField(null=True,blank=True)
-    event_type     = models.IntegerField(default=event_constants.TIME,choices=event_constants.EVENT_TYPE_CHOICE,null=True,blank=True)
+    event_type     = models.IntegerField(default=event_constants.TIME,
+                                         choices=event_constants.EVENT_TYPE_CHOICE,
+                                         null=True,blank=True)
     
 
 class EventRegistration(models.Model):
@@ -47,8 +50,10 @@ Attribs:
     event   : foriegn key of the event
     student : foriegn key of student
     """
-    event   = models.ForeignKey(Event,on_delete=models.CASCADE)
-    student = models.ForeignKey(account.models.Student,on_delete=models.CASCADE)
+    event   = models.ForeignKey(Event,on_delete=models.CASCADE
+                                ,related_name='eventregistrations')
+    student = models.ForeignKey(account.models.Student,on_delete=models.CASCADE
+                                ,related_name='eventregistrations')
 
 
 class Try(models.Model):
@@ -59,7 +64,8 @@ Attribs:
     try_no    : counts the attempt max=3
     result    : store the score of each attempt
     """
-    event_reg = models.ForeignKey(EventRegistration,on_delete=models.CASCADE)
+    event_reg = models.ForeignKey(EventRegistration,on_delete=models.CASCADE
+                                  ,related_name='tries')
     try_no    = models.IntegerField(null=True,blank=True,default=2)
     result   = models.IntegerField(null=True,blank=True,default=2)
     
