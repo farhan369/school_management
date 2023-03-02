@@ -21,6 +21,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
 
-    #url for accounts app
+    # url for accounts app
     path('user/', include('account.urls')),
+    # urls for academics app
+    path('academics/',include('academics.urls')),
+    
 ]

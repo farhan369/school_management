@@ -1,47 +1,21 @@
 from rest_framework.permissions import BasePermission
 from . import constants as account_constants
 from rest_framework.response import Response
-
-class UserTypePermission(BasePermission):
+from rest_framework import status
+class IsAdmin(BasePermission):
     """ this class is used to create a custom permission 
-        such that only admins are allowed to create
-        account for students and teaches
+        such that only admins are given
     """
 
     def has_permission(self, request, view):
         account   = request.user.account
         user_type = account.user_type
         user_type = int(user_type)
-        return user_type == account_constants.ADMIN
-    
+        if user_type == account_constants.ADMIN:
+            return True
+        else:
+            return Response({'error': "you are not an admin"}, status=status.HTTP_403_FORBIDDEN)
 
-class AdminCreationPermission(BasePermission):
-    #checks whether the request is to make a admin account
-    def has_permission(self, request, view):
-        
-        user_type = request.data.get('user_type')
-        user_type = int(user_type)
-    
-        return user_type == account_constants.ADMIN 
-        
-
-class TeacherCreationPermission(BasePermission):
-    #checks whether the new creating user is Teacher
-    def has_permission(self, request, view):
-        
-        user_type = request.data.get('user_type')
-        user_type = int(user_type)
-    
-        return user_type == account_constants.TEACHER 
-    
-class StudentCreationPermission(BasePermission):
-    #checks whether the new creating user is Student
-    def has_permission(self, request, view):
-        
-        user_type = request.data.get('user_type')
-        user_type = int(user_type)
-    
-        return user_type == account_constants.STUDENT 
              
         
 

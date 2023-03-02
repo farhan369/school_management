@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/',ObtainAuthTokenView.as_view(),name='login'),
     path('hello/', HelloAPIView.as_view(), name='hello'),
     path('createteacher/',CreateTeacherView.as_view(),name='createteacher'),
-    path('createstudent/',CreateStudentView.as_view(),name='createstudent'),
+    #path('createstudent/',CreateStudentView.as_view(),name='createstudent'),
 
 
 ]   

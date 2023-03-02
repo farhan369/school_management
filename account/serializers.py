@@ -4,6 +4,11 @@ from .models import Account,Teacher,Student
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from . import constants as account_constants
+from rest_framework.response import Response
+from rest_framework import status
+
+
 
 
 class AccountCreateSerializer(serializers.ModelSerializer):
@@ -22,26 +27,42 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         # this class define the model and the variables that need to be
         # serialized in order
         model = Account
-        fields = ('username', 'email', 'password', 'first_name','last_name'
+        fields = ('id','username', 'email', 'password', 'first_name','last_name'
                   ,'user_type')
     
-        
+    """     
     def validate_email(self, value):
         # this function is to check whether another account exist with
         # given email
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError('Email address must be unique')
         return value
+        """
     
     
     def create(self, validated_data):
-        #this function takes the validated data as an input and 
-        # saves it to the database
         user_data = validated_data.pop('user')
-        user = User.objects.create_user(**user_data, is_active=True)
-        account = Account.objects.create(user=user, **validated_data)
-        return account
-    
+        user_type = validated_data['user_type']
+        print(user_type)
+
+        if user_type == account_constants.ADMIN:
+            
+            user = User.objects.create_user(**user_data,is_active = True)
+            account = Account.objects.create(user=user, **validated_data)
+            return account
+            
+
+
+class TeacherSerializer(serializers.ModelSerializer):
+    user = AccountCreateSerializer(required=True)
+
+    class Meta:
+        model = Teacher
+        fields = ('user',)
+
+
+
+
 
 
    
@@ -65,6 +86,10 @@ class AuthTokenSerializer(serializers.Serializer):
 
     username = serializers.CharField()
     password = serializers.CharField()
+    
+    
+
+
     
 
     def validate(self, attrs):
@@ -104,10 +129,8 @@ class AuthTokenSerializer(serializers.Serializer):
         # Create or update the user's token
         token, _ = Token.objects.get_or_create(user=user)
         attrs['token'] = token.key
-
-
+        attrs['id']=account.user.id
         return attrs
-
 
 
 
