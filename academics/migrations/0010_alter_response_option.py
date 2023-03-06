@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0009_remove_response_option_response_option'),
+        ("academics", "0009_remove_response_option_response_option"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='response',
-            name='option',
-            field=models.ManyToManyField(blank=True, related_name='selected_options', to='academics.option'),
+            model_name="response",
+            name="option",
+            field=models.ManyToManyField(
+                blank=True, related_name="selected_options", to="academics.option"
+            ),
         ),
     ]

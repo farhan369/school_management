@@ -4,15 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('account', '0001_initial'),
+        ("account", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='account',
-            name='user_type',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'student'), (2, 'teacher'), (3, 'secretary'), (4, 'supervisor'), (5, 'admin')], default=1),
+            model_name="account",
+            name="user_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[
+                    (1, "student"),
+                    (2, "teacher"),
+                    (3, "secretary"),
+                    (4, "supervisor"),
+                    (5, "admin"),
+                ],
+                default=1,
+            ),
         ),
     ]

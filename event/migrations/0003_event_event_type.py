@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('event', '0002_event_end_time_event_start_time_and_more'),
+        ("event", "0002_event_end_time_event_start_time_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='event_type',
-            field=models.IntegerField(choices=[(0, 'Timw'), (1, 'Distance')], default=0),
+            model_name="event",
+            name="event_type",
+            field=models.IntegerField(
+                choices=[(0, "Timw"), (1, "Distance")], default=0
+            ),
         ),
     ]

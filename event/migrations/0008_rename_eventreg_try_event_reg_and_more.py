@@ -4,20 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('event', '0007_alter_event_class_limit_alter_event_end_time_and_more'),
+        ("event", "0007_alter_event_class_limit_alter_event_end_time_and_more"),
     ]
 
     operations = [
         migrations.RenameField(
-            model_name='try',
-            old_name='eventreg',
-            new_name='event_reg',
+            model_name="try",
+            old_name="eventreg",
+            new_name="event_reg",
         ),
         migrations.RenameField(
-            model_name='try',
-            old_name='tryno',
-            new_name='try_no',
+            model_name="try",
+            old_name="tryno",
+            new_name="try_no",
         ),
     ]

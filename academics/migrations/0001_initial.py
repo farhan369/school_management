@@ -5,21 +5,34 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('account', '0004_student_teacher'),
+        ("account", "0004_student_teacher"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Classroom',
+            name="Classroom",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('standard', models.IntegerField()),
-                ('division', models.CharField(max_length=2)),
-                ('teacher', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='account.teacher')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("standard", models.IntegerField()),
+                ("division", models.CharField(max_length=2)),
+                (
+                    "teacher",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="account.teacher",
+                    ),
+                ),
             ],
         ),
     ]

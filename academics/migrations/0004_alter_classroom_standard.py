@@ -5,15 +5,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0003_option_response_question_option_question'),
+        ("academics", "0003_option_response_question_option_question"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='classroom',
-            name='standard',
-            field=models.IntegerField(validators=[django.core.validators.MaxValueValidator(12), django.core.validators.MinValueValidator(1)]),
+            model_name="classroom",
+            name="standard",
+            field=models.IntegerField(
+                validators=[
+                    django.core.validators.MaxValueValidator(12),
+                    django.core.validators.MinValueValidator(1),
+                ]
+            ),
         ),
     ]

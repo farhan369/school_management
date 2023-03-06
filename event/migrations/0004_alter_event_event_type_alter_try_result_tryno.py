@@ -5,20 +5,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('event', '0003_event_event_type'),
+        ("event", "0003_event_event_type"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='event',
-            name='event_type',
-            field=models.IntegerField(choices=[(0, 'Time'), (1, 'Distance')], default=0),
+            model_name="event",
+            name="event_type",
+            field=models.IntegerField(
+                choices=[(0, "Time"), (1, "Distance")], default=0
+            ),
         ),
         migrations.AlterField(
-            model_name='try_result',
-            name='tryno',
-            field=models.IntegerField(validators=[django.core.validators.MaxValueValidator(3), django.core.validators.MinValueValidator(1)]),
+            model_name="try_result",
+            name="tryno",
+            field=models.IntegerField(
+                validators=[
+                    django.core.validators.MaxValueValidator(3),
+                    django.core.validators.MinValueValidator(1),
+                ]
+            ),
         ),
     ]

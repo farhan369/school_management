@@ -5,50 +5,53 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0006_rename_examname_exam_exam_and_more'),
+        ("academics", "0006_rename_examname_exam_exam_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='classroom',
-            name='division',
-            field=models.CharField(blank=True, default='A', max_length=2, null=True),
+            model_name="classroom",
+            name="division",
+            field=models.CharField(blank=True, default="A", max_length=2, null=True),
         ),
         migrations.AlterField(
-            model_name='classroom',
-            name='standard',
+            model_name="classroom",
+            name="standard",
             field=models.IntegerField(blank=True, default=1, null=True),
         ),
         migrations.AlterField(
-            model_name='exam',
-            name='end_time',
-            field=models.DateTimeField(blank=True, default=django.utils.timezone.now, null=True),
+            model_name="exam",
+            name="end_time",
+            field=models.DateTimeField(
+                blank=True, default=django.utils.timezone.now, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='exam',
-            name='exam',
+            model_name="exam",
+            name="exam",
             field=models.CharField(blank=True, max_length=20),
         ),
         migrations.AlterField(
-            model_name='exam',
-            name='start_time',
-            field=models.DateTimeField(blank=True, default=django.utils.timezone.now, null=True),
+            model_name="exam",
+            name="start_time",
+            field=models.DateTimeField(
+                blank=True, default=django.utils.timezone.now, null=True
+            ),
         ),
         migrations.AlterField(
-            model_name='option',
-            name='is_correct',
+            model_name="option",
+            name="is_correct",
             field=models.BooleanField(blank=True, default=False, null=True),
         ),
         migrations.AlterField(
-            model_name='option',
-            name='option',
+            model_name="option",
+            name="option",
             field=models.CharField(blank=True, default=None, max_length=50),
         ),
         migrations.AlterField(
-            model_name='question',
-            name='question',
+            model_name="question",
+            name="question",
             field=models.CharField(blank=True, default=None, max_length=50),
         ),
     ]

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SportsFestival,Event,EventRegistration,Try
+from .models import SportsFestival, Event, EventRegistration, Try
 
 # Register your models here.
 

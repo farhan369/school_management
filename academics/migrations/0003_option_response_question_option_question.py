@@ -5,40 +5,82 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('account', '0004_student_teacher'),
-        ('academics', '0002_exam'),
+        ("account", "0004_student_teacher"),
+        ("academics", "0002_exam"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Option',
+            name="Option",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('is_correct', models.BooleanField()),
-                ('optionname', models.CharField(max_length=50)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("is_correct", models.BooleanField()),
+                ("optionname", models.CharField(max_length=50)),
             ],
         ),
         migrations.CreateModel(
-            name='Response',
+            name="Response",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('option', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='academics.option')),
-                ('student', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='account.student')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "option",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="academics.option",
+                    ),
+                ),
+                (
+                    "student",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="account.student",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Question',
+            name="Question",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('Questionname', models.CharField(max_length=50)),
-                ('exam', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='academics.exam')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("Questionname", models.CharField(max_length=50)),
+                (
+                    "exam",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="academics.exam"
+                    ),
+                ),
             ],
         ),
         migrations.AddField(
-            model_name='option',
-            name='question',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='academics.question'),
+            model_name="option",
+            name="question",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="academics.question"
+            ),
         ),
     ]

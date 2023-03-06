@@ -4,19 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0008_alter_exam_end_time_alter_exam_start_time'),
+        ("academics", "0008_alter_exam_end_time_alter_exam_start_time"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='response',
-            name='option',
+            model_name="response",
+            name="option",
         ),
         migrations.AddField(
-            model_name='response',
-            name='option',
-            field=models.ManyToManyField(blank=True, null=True, related_name='selected_options', to='academics.option'),
+            model_name="response",
+            name="option",
+            field=models.ManyToManyField(
+                blank=True,
+                null=True,
+                related_name="selected_options",
+                to="academics.option",
+            ),
         ),
     ]

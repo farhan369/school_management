@@ -5,33 +5,32 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('event', '0001_initial'),
+        ("event", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='end_time',
+            model_name="event",
+            name="end_time",
             field=models.DateTimeField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='event',
-            name='start_time',
+            model_name="event",
+            name="start_time",
             field=models.DateTimeField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sports_festival',
-            name='from_date',
+            model_name="sports_festival",
+            name="from_date",
             field=models.DateField(default=django.utils.timezone.now),
             preserve_default=False,
         ),
         migrations.AddField(
-            model_name='sports_festival',
-            name='to_date',
+            model_name="sports_festival",
+            name="to_date",
             field=models.DateField(default=django.utils.timezone.now),
             preserve_default=False,
         ),

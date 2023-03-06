@@ -5,21 +5,26 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('academics', '0003_option_response_question_option_question'),
-        ('account', '0004_student_teacher'),
+        ("academics", "0003_option_response_question_option_question"),
+        ("account", "0004_student_teacher"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='student',
-            name='classroom',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='academics.classroom'),
+            model_name="student",
+            name="classroom",
+            field=models.ForeignKey(
+                default=1,
+                on_delete=django.db.models.deletion.CASCADE,
+                to="academics.classroom",
+            ),
         ),
         migrations.AlterField(
-            model_name='account',
-            name='user_type',
-            field=models.PositiveSmallIntegerField(choices=[(1, 'student'), (2, 'teacher'), (3, 'admin')], default=2),
+            model_name="account",
+            name="user_type",
+            field=models.PositiveSmallIntegerField(
+                choices=[(1, "student"), (2, "teacher"), (3, "admin")], default=2
+            ),
         ),
     ]
