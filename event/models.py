@@ -8,7 +8,7 @@ from . import constants as event_constants
 # Create your models here.
 class SportsFestival(models.Model):
     """
-        Model to store sports_festival details
+    Model to store sports_festival details
     Attribs:
         name        : name of the fest
         from_date   : start date of fest
@@ -18,6 +18,9 @@ class SportsFestival(models.Model):
     name = models.CharField(max_length=20)
     from_date = models.DateField(null=True, blank=True)
     to_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Event(models.Model):
@@ -37,8 +40,6 @@ class Event(models.Model):
         SportsFestival, on_delete=models.CASCADE, related_name="events"
     )
     class_limit = models.IntegerField(null=True, blank=True, default=2)
-    start_time = models.DateTimeField(null=True, blank=True)
-    end_time = models.DateTimeField(null=True, blank=True)
     event_type = models.IntegerField(
         default=event_constants.TIME,
         choices=event_constants.EVENT_TYPE_CHOICE,
@@ -46,6 +47,8 @@ class Event(models.Model):
         blank=True,
     )
 
+    def __str__(self):
+        return self.name
 
 class EventRegistration(models.Model):
     """
@@ -79,3 +82,4 @@ class Try(models.Model):
     )
     try_no = models.IntegerField(null=True, blank=True, default=2)
     result = models.IntegerField(null=True, blank=True, default=2)
+

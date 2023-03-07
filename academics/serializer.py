@@ -1,18 +1,39 @@
 from rest_framework import serializers
-from account.models import Teacher, Account
+from account.models import Teacher, Account, Student
 from django.contrib.auth.models import User
 from .models import Classroom, Exam, Question, Option, Response as Responsee
 from rest_framework.response import Response
 from rest_framework import status
 
 
+class ClassTeacherSerializer(serializers.ModelSerializer):
+    """this serializer is used as nested in classroom
+        serializer to print teachers data 
+    """
+    username = serializers.CharField(source="user.user.username") 
+    class Meta:
+        model = Teacher
+        fields = '__all__'
+
+
 class ClassroomSerializer(serializers.ModelSerializer):
     # this serilizer is for Classroom model
-    teacher_id = serializers.IntegerField()
-
+    teacher_username = serializers.CharField(write_only=True)
+    teacher = ClassTeacherSerializer(read_only = True)
     class Meta:
         model = Classroom
-        fields = ["id", "standard", "division", "teacher_id"]
+        fields = ["id", "standard", "division", "teacher_username","teacher"]
+    
+    def create(self, validated_data):
+        """
+        modifying to identify teacher object by username
+        """
+        print(validated_data)
+        teacher_username = validated_data.pop('teacher_username')
+        teacher = Teacher.objects.get(user__user__username = teacher_username)
+        classroom = Classroom.objects.create(teacher=teacher,**validated_data)
+        return classroom
+
 
 
 class ExamSerilalizer(serializers.ModelSerializer):
@@ -24,17 +45,12 @@ class ExamSerilalizer(serializers.ModelSerializer):
         fields = ["id", "name", "start_time", "end_time", "classroom_id"]
 
     def create(self, validated_data):
-        try:
+        
             request = self.context.get("request")
             classroom_id = request.parser_context["kwargs"].get("id")
             classroom = Classroom.objects.get(id=classroom_id)
             exam = Exam.objects.create(classroom=classroom, **validated_data)
             return exam
-        except Exception as e:
-            return Response(
-                {"error": "something went wrong", "dev_deta": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
 
 
 class OptionSerializer(serializers.ModelSerializer):
@@ -57,7 +73,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Question
-        fields = ('id', 'text', 'options')
+        fields = ('id', 'text', 'options','mark')
 
     def create(self, validated_data):
         options_data = validated_data.pop('options')
@@ -103,3 +119,36 @@ class ResponseSerializer(serializers.ModelSerializer):
             print("hello")
 
         return response
+    
+
+class ExamResultSerializer(serializers.Serializer):
+        exam_id  = serializers.IntegerField(read_only = True)
+        student_id = serializers.IntegerField(read_only=True)
+        total_questions = serializers.IntegerField(read_only=True)
+        score = serializers.IntegerField(read_only=True)
+
+        class Meta:
+            fields = ('exam_id','student_id','total_mark','score')
+
+        def to_representation(self, instance):
+            ret = super().to_representation(instance)
+            exam_id = self.context['view'].kwargs.get('exam_id')
+            student_id = self.context['view'].kwargs.get('student_id')
+            exam = Exam.objects.get(id=exam_id)
+            print(exam)
+            student = Student.objects.get(user__user__id=student_id)
+            print(student)
+            questions = Question.objects.filter(exam=exam)
+            mark = 0
+            for question in questions:
+                mark = mark + question.mark
+            ret['total_mark'] = mark
+            responses = Responsee.objects.filter(student=student,option__question__exam =exam)
+            print(responses)
+            score =0
+            for response in responses:
+                score = score + response.option.filter(is_correct=True).count()
+            ret['score'] = score
+            return ret
+            
+

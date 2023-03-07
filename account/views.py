@@ -24,6 +24,7 @@ from academics.models import Classroom
 class SignUpView(generics.CreateAPIView):
     """
     api for sign up
+    can only be accessed by admin
 
     Attribs:
         queryset             : This attribute sets the queryset of Account
@@ -45,11 +46,12 @@ class SignUpView(generics.CreateAPIView):
 
 
 class ObtainAuthTokenView(ObtainAuthToken):
-    """Handle creating user authentication tokens
-            used to return token and id when the data
-            from the serializer is validated.
+    """
+    Handle creating user authentication tokens
+    used to return token and id when the data
+    from the serializer is validated.
 
-            Used for login
+    Used for login
 
 
     Attribs:
@@ -85,16 +87,25 @@ class ObtainAuthTokenView(ObtainAuthToken):
         )
 
 
-class CreateTeacherView(generics.CreateAPIView):
-    # this api creates a teacher account by an admin
+class CreateTeacherView(generics.ListCreateAPIView):
+    """
+    This api creates a teacher account by an admin
+    it also return list of teachers
+    """
     serializer_class = TeacherSerializer
     permission_classes = [
         IsAdmin,
     ]
+    queryset = Teacher.objects.all()
 
 
-class CreateStudentView(generics.CreateAPIView):
+class CreateStudentView(generics.ListCreateAPIView):
+    """
+    This api is used for create/list student
+    it can be only accessed by teacher of that class or admin
+    """
     permission_classes = [
         IsStaff,
     ]
     serializer_class = StudentSerializer
+    queryset = Student.objects.all()

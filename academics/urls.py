@@ -8,5 +8,7 @@ urlpatterns = [
     path("classroom/<int:id>/exam/<int:exam_id>/question/"
          ,QuestionCreateView.as_view(),name='questions'),
     path("classroom/<int:id>/exam/<int:exam_id>/question/<int:question_id>/"
-         ,ResponseView.as_view(),name='response')
+         ,ResponseView.as_view(),name='response'),
+    path("classroom/<int:id>/exam/<int:exam_id>/student/<int:student_id>/"
+         , ExamResultView.as_view(), name = 'result')
 ]

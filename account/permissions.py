@@ -20,7 +20,6 @@ class IsAdmin(BasePermission):
             user_type = account.user_type
             user_type = int(user_type)
             if user_type == account_constants.ADMIN:
-                print("hi")
                 return True
             else:
                 return False

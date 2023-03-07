@@ -1,2 +1,8 @@
 .env
 local.py
+academics/__pycache__/
+academics/migrations/__pycache__/
+account/__pycache__/
+account/migrations/__pycache__/
+event/__pycache__/
+event/migrations/__pycache__

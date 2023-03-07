@@ -12,6 +12,9 @@ from academics.models import Classroom
 
 
 class AccountCreateSerializer(serializers.ModelSerializer):
+    """
+    This class  serialize Account object
+    """
     # This serializer is used to create an admin user
 
     username = serializers.CharField(source="user.username")
@@ -43,7 +46,8 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         return value
         """
 
-    # to create Account object in DataBase
+    # To create Account object in DataBase before creating account 
+    # We need to create user account so create method is overridden
     def create(self, validated_data):
         user_data = validated_data.pop("user")
         user_type = validated_data["user_type"]
@@ -59,25 +63,18 @@ class AccountCreateSerializer(serializers.ModelSerializer):
 
 class TeacherSerializer(serializers.ModelSerializer):
     """
-    Serilizer used to create Teacher Object
+    Serilizer used to serialize Teacher Object
     """
 
     """
-class to store values for user fields.
+    class to store values for user fields.
 
-Attribs:
-    
-    serializer_class         : This attribute sets the serializer class
-                               that will be used for this view. 
-    permission_classes       : This attribute sets the permission 
-                               classes that will be used for this view
-    Teacher Object attrubtes : [username,email,first_name,last_name,last_name 
-                                ,user_type]
-    account                  : to store instance of Account
-    user                     : to store instance of User that is created
-    teacher                  : to store instance of Teacher that is created
-    serializer               : Instance of  TeacherSerilizer class
-
+    Attribs:   
+        Teacher Object attrubtes : [username,email,first_name,last_name
+                                   ,last_name ,user_type]
+        account                  : to store instance of Account
+        user                     : to store instance of User that is created
+        teacher                  : to store instance of Teacher that is created
 """
     username = serializers.CharField(source="user.user.username")
     email = serializers.EmailField(source="user.user.email")
@@ -85,6 +82,7 @@ Attribs:
     first_name = serializers.CharField(source="user.user.first_name")
     last_name = serializers.CharField(source="user.user.last_name")
     user_type = serializers.IntegerField(source="user.user_type")
+
 
     class Meta:
         model = Teacher
@@ -99,6 +97,7 @@ Attribs:
 
     def create(self, validated_data):
         user_data = validated_data.pop("user")
+        # To store user data to user object
         user_type = user_data["user_type"]
         user = User.objects.create_user(**user_data["user"])
         account = Account.objects.create(user=user, user_type=user_type)
@@ -136,41 +135,40 @@ class StudentSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop("user")
         user_type = user_data["user_type"]
 
-        try:
-            if user_type == account_constants.STUDENT:
-                try:
-                    """
-                    This try except block check if the classroom
-                    exists
-                    """
-                    classroom = Classroom.objects.get(id=validated_data["class_room"])
-                    account = self.context["request"].user.account
-                    request_user_type = account.user_type
-                    request_user_type = int(request_user_type)
-                    # Checks whether the teacher is assigned to the given class
-                    if request_user_type == account_constants.TEACHER:
-                        class_teacher_id = classroom.teacher.user.user.id
-                        if class_teacher_id != self.context["request"].user.id:
-                            return Response(
-                                {"error": "teacher is not assigned to this class"},
-                                status=status.HTTP_406_NOT_ACCEPTABLE,
-                            )
+        if user_type == account_constants.STUDENT:
+            try:
+                """
+                This try except block check if the classroom
+                exists
+                """
+                classroom = Classroom.objects.get(id=validated_data["class_room"])
+                account = self.context["request"].user.account
+                request_user_type = account.user_type
+                request_user_type = int(request_user_type)
+                # Checks whether the teacher is assigned to the given class
+                if request_user_type == account_constants.TEACHER:
+                    print('3')
+                    class_teacher_id = classroom.teacher.user.user.id
+                    if class_teacher_id != self.context["request"].user.id:
+                        return Response(
+                            {"error": "teacher is not assigned to this class"},
+                            status=status.HTTP_406_NOT_ACCEPTABLE,
+                        )
 
-                except Exception as e:
-                    return Response(
-                        {"error": str(e), "app_data": "classroom doesn't exist"},
-                        status=status.HTTP_406_NOT_ACCEPTABLE,
-                    )
+            except Exception as e:
+                return Response(
+                    {"error": str(e), "app_data": "classroom doesn't exist"},
+                    status=status.HTTP_406_NOT_ACCEPTABLE,
+                )
+            user = User.objects.create_user(**user_data["user"])
+            account = Account.objects.create(user=user, user_type=user_type)
+            class_room = Classroom.objects.get(id=validated_data["class_room"])
+            student = Student.objects.create(user=account)
+            student.classroom.set([class_room])
+            return student
+        else:
+            return print("user is not student")
 
-                user = User.objects.create_user(**user_data["user"])
-                account = Account.objects.create(user=user, user_type=user_type)
-                class_room = Classroom.objects.get(id=validated_data["class_room"])
-                student = Student.objects.create(classroom=class_room, user=account)
-                return student
-            else:
-                return print("user is not student")
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class AuthTokenSerializer(serializers.Serializer):

@@ -47,13 +47,15 @@ class Student(models.Model):
     """
 
     user = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
-    classroom = models.ForeignKey(
+    classroom = models.ManyToManyField(
         "academics.Classroom",
-        on_delete=models.CASCADE,
         default=1,
+        through='academics.Enrollment',
         related_name="students",
     )
 
+    def __str__(self):
+        return self.user.user.username
 
 class Teacher(models.Model):
     """
@@ -63,3 +65,6 @@ class Teacher(models.Model):
     """
 
     user = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
+
+"""     def __str__(self):
+        return self.user.user.username """

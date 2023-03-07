@@ -1,7 +1,7 @@
 from django.db import models
 import account.models
-from django.core.validators import MaxValueValidator, MinValueValidator
 
+from datetime import date
 
 # Create your models here.
 
@@ -22,6 +22,10 @@ class Classroom(models.Model):
         on_delete=models.CASCADE,
         related_name="classroom",
     )
+    class Meta:
+        unique_together = (('standard','division'))
+    def __str__(self):
+        return str(self.standard) + self.division
 
 
 class Exam(models.Model):
@@ -43,6 +47,9 @@ class Exam(models.Model):
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Question(models.Model):
     """
@@ -56,6 +63,10 @@ class Question(models.Model):
 
     text = models.CharField(max_length=50, blank=True, default=None)
     exam = models.ForeignKey(Exam, on_delete=models.CASCADE, related_name="questions")
+    mark = models.IntegerField(blank=True,default=1,null=True)
+
+    def __str__(self):
+        return self.text
 
 
 class Option(models.Model):
@@ -73,6 +84,9 @@ class Option(models.Model):
         Question, on_delete=models.CASCADE, related_name="options"
     )
 
+    def __str__(self):
+        return self.text
+
 
 class Response(models.Model):
     """
@@ -87,7 +101,21 @@ class Response(models.Model):
         Option,
         related_name="selected_options",
         blank=True,
+
     )
     student = models.ForeignKey(
         account.models.Student, on_delete=models.CASCADE, related_name="responses"
     )
+
+
+class Enrollment(models.Model):
+    """
+    Model to store the relationship between a student and a classroom.
+    Attribs:
+    classroom : foreign key to know which class the student belongs
+    student : foreign key to know which student belongs to the class
+    enroll_date : date on which the student enrolled in the class
+    """
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
+    student = models.ForeignKey(account.models.Student, on_delete=models.CASCADE)
+    enroll_date = models.DateField(default=date.today)
