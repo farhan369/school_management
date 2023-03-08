@@ -28,7 +28,6 @@ class ClassroomSerializer(serializers.ModelSerializer):
         """
         modifying to identify teacher object by username
         """
-        print(validated_data)
         teacher_username = validated_data.pop('teacher_username')
         teacher = Teacher.objects.get(user__user__username = teacher_username)
         classroom = Classroom.objects.create(teacher=teacher,**validated_data)

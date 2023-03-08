@@ -42,8 +42,7 @@ class Exam(models.Model):
 
     name = models.CharField(max_length=20, unique=False, blank=True)
     classroom = models.ForeignKey(
-        Classroom, on_delete=models.CASCADE, related_name="exams"
-    )
+        Classroom, on_delete=models.CASCADE, related_name="exams")
     start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
 

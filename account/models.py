@@ -66,5 +66,5 @@ class Teacher(models.Model):
 
     user = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
 
-"""     def __str__(self):
-        return self.user.user.username """
+    def __str__(self):
+        return self.user.user.username

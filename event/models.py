@@ -1,6 +1,7 @@
 from django.db import models
 
 import account.models
+import academics.models
 
 from . import constants as event_constants
 
@@ -37,15 +38,13 @@ class Event(models.Model):
 
     name = models.CharField(max_length=25, blank=True, default=None)
     fest = models.ForeignKey(
-        SportsFestival, on_delete=models.CASCADE, related_name="events"
-    )
-    class_limit = models.IntegerField(null=True, blank=True, default=2)
+           SportsFestival, on_delete=models.CASCADE, related_name="events")
+    standards = models.ManyToManyField(academics.models.Classroom,
+                related_name="events", blank=True, default=None)
     event_type = models.IntegerField(
-        default=event_constants.TIME,
-        choices=event_constants.EVENT_TYPE_CHOICE,
-        null=True,
-        blank=True,
-    )
+                 default=event_constants.TIME,
+                 choices=event_constants.EVENT_TYPE_CHOICE,
+                 null=True,blank=True)
 
     def __str__(self):
         return self.name
@@ -80,6 +79,7 @@ class Try(models.Model):
     event_reg = models.ForeignKey(
         EventRegistration, on_delete=models.CASCADE, related_name="tries"
     )
-    try_no = models.IntegerField(null=True, blank=True, default=2)
-    result = models.IntegerField(null=True, blank=True, default=2)
+    result = models.FloatField(null=True, blank=True, default=2)
+
+
 
