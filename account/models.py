@@ -8,7 +8,6 @@ from . import constants as account_constants
 
 
 class Account(models.Model):
-
     """
     Model to store values for user fields.
 
@@ -46,7 +45,8 @@ class Student(models.Model):
 
     """
 
-    user = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        Account,on_delete=models.CASCADE, primary_key=True)
     classroom = models.ManyToManyField(
         "academics.Classroom",
         default=1,
@@ -59,12 +59,13 @@ class Student(models.Model):
 
 class Teacher(models.Model):
     """
-    model to store teacher details . created to use as foreign key to class
+    model to store teacher details . created to use as foreign key to classroom
     Attribs:
         user : OneToOneField to get attribute of Account
     """
 
-    user = models.OneToOneField(Account, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(
+        Account, on_delete=models.CASCADE, primary_key=True)
 
     def __str__(self):
         return self.user.user.username

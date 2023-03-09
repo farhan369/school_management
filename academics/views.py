@@ -1,43 +1,98 @@
 from django.shortcuts import render
+from rest_framework import generics
 
-from rest_framework import generics, status
-from .models import Classroom, Exam, Question, Option, Response as Responsee
-from .serializer import \
-ClassroomSerializer, ExamSerilalizer, QuestionSerializer, ResponseSerializer \
-,ExamResultSerializer
-from account.permissions import IsAdmin, IsStaff
-from account.models import Teacher
-from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
+from . import models as academics_models
+from . import serializers as academics_serializers
 
-from account.permissions import IsAdmin
+import account.permissions
+
 
 # Create your views here.
 
 class ClassroomCreateView(generics.ListCreateAPIView):
-    queryset = Classroom.objects.all()
-    serializer_class = ClassroomSerializer
-    permission_classes = [IsAdmin]
+    """
+    View for creating and listing classroom instances.
+
+    GET:
+    Returns a list of all existing classrooms.
+
+    POST:
+    Creates a new classroom instance.
+
+    Permissions:
+    - Only users with 'admin' role can access this view.
+    """
+    queryset = academics_models.Classroom.objects.all()
+    serializer_class = academics_serializers.ClassroomSerializer
+    permission_classes = [account.permissions.IsAdmin]
 
 
 class ExamCreateView(generics.ListCreateAPIView):
-    queryset = Exam.objects.all()
-    serializer_class = ExamSerilalizer
-    permission_classes = [IsStaff]
+    """
+    View for creating and listing Exam instances.
+
+    GET:
+    Returns a list of all existing Exams.
+
+    POST:
+    Creates a new exam instance.
+
+    Permissions:
+    - Only users with 'admin or teacher' role can access this view.
+    """
+    queryset = academics_models.Exam.objects.all()
+    serializer_class = academics_serializers.ExamSerilalizer
+    permission_classes = [account.permissions.IsStaff]
 
 
 class QuestionCreateView(generics.ListCreateAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-    permission_classes = [IsStaff]
+    """
+    View for creating and listing Question instances.
+
+    GET:
+    Returns a list of all existing Question instances.
+
+    POST:
+    Creates a new question instance.
+
+    Permissions:
+    - Only users with 'admin or teacher' role can access this view.
+    """
+    queryset = academics_models.Question.objects.all()
+    serializer_class = academics_serializers.QuestionSerializer
+    permission_classes = [account.permissions.IsStaff]
 
 
-class ResponseView(generics.ListCreateAPIView):
-    queryset = Responsee.objects.all()
-    serializer_class = ResponseSerializer
+class ResponseView(generics.CreateAPIView):
+    """
+    View for creating response instances.
+
+    POST:
+    Creates a new response instance.
+
+    Permissions:
+    - Only users with 'student' role can access this view.
+    """
+    queryset = academics_models.Response.objects.all()
+    serializer_class = academics_serializers.ResponseSerializer
+    permission_classes = [account.permissions.IsStudent]
 
 
 class ExamResultView(generics.ListAPIView):
-    serializer_class = ExamResultSerializer
-    queryset = Responsee.objects.all()
+    """
+    View for listing exam results for a specific exam.
+
+    Permissions:
+    - Only authenticated users can access this view.
+    """
+    serializer_class = academics_serializers.ExamResultSerializer
+
+    def get_queryset(self):
+        """
+        Returns a queryset of exam instances filtered by the 'exam_id'
+        parameter passed in the URL.
+        """
+        exam_id = self.kwargs.get('exam_id')
+        queryset = academics_models.Exam.objects.filter(id=exam_id)
+        return queryset
+    

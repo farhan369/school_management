@@ -3,12 +3,22 @@ from .views import *
 
 urlpatterns = [
     # create academics url
-    path("createclassroom/", ClassroomCreateView.as_view(), name="createclassroom"),
-    path("classroom/<int:id>/exam/", ExamCreateView.as_view(), name="exams"),
-    path("classroom/<int:id>/exam/<int:exam_id>/question/"
+    
+     # to create and get list of classes
+     path("classroom/", ClassroomCreateView.as_view(), name="createclassroom"),
+     
+     # to create and get list of exams active to a class
+     path("classroom/<int:id>/exam/", ExamCreateView.as_view(), name="exams"),
+
+     # to create and get  questions and options of an exam
+     path("classroom/<int:id>/exam/<int:exam_id>/question/"
          ,QuestionCreateView.as_view(),name='questions'),
-    path("classroom/<int:id>/exam/<int:exam_id>/question/<int:question_id>/"
+
+     # to save the response of a student taking exam  
+     path("classroom/<int:id>/exam/<int:exam_id>/question/<int:question_id>/"
          ,ResponseView.as_view(),name='response'),
-    path("classroom/<int:id>/exam/<int:exam_id>/student/<int:student_id>/"
+
+     # to get result of an student
+     path("classroom/<int:id>/exam/<int:exam_id>/student/<int:student_id>/"
          , ExamResultView.as_view(), name = 'result')
 ]

@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework import generics, status, views
 from .models import *
-from .serializer import *
+from .serializers import *
 from account.permissions import IsAdmin, IsStaff
 # Create your views here.
 

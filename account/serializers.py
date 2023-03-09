@@ -7,7 +7,7 @@ from rest_framework.authtoken.models import Token
 from . import constants as account_constants
 from rest_framework.response import Response
 from rest_framework import status
-from academics.serializer import ClassroomSerializer
+from academics.serializers import ClassroomSerializer
 from academics.models import Classroom
 
 
