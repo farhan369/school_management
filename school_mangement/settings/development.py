@@ -21,6 +21,8 @@ INSTALLED_APPS = [
     # third party apps
     "rest_framework",
     "rest_framework.authtoken",
+    "django_celery_beat",
+    "django_celery_results",
 ]
 # To set up authentication using AuthToken
 REST_FRAMEWORK = {
@@ -46,3 +48,22 @@ DATABASES = {
         "PORT": env("DATABASE_PORT"),
     }
 }
+
+# save Celery task results in Django's database
+CELERY_RESULT_BACKEND = "django-db"
+
+# This configures Redis as the datastore between Django + Celery
+CELERY_BROKER_URL = env('CELERY_BROKER_REDIS_URL', default='redis://localhost:6379')
+
+# this allows you to schedule items in the Django admin.
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'farhanfm177@gmail.com'
+EMAIL_HOST_PASSWORD = 'wzruusuejavyrigd'
+
+RECIPIENT_ADDRESS = 'farhanfm177@gmail.com'

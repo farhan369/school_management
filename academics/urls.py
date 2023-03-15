@@ -20,5 +20,8 @@ urlpatterns = [
 
      # to get result of an student
      path("classroom/<int:id>/exam/<int:exam_id>/student/<int:student_id>/"
-         , ExamResultView.as_view(), name = 'result')
+         , ExamResultView.as_view(), name = 'result'),
+
+    # to mark attendence
+    path("markattendence/",MarkAttendenceView.as_view(),name='mark_attendence')
 ]

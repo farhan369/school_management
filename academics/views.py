@@ -96,3 +96,16 @@ class ExamResultView(generics.ListAPIView):
         queryset = academics_models.Exam.objects.filter(id=exam_id)
         return queryset
     
+
+class MarkAttendenceView(generics.CreateAPIView):
+    """
+    View for marking attendence for teachers and students
+
+    permissions:
+    - Only teacher and students can mark attendence
+    """
+    queryset = academics_models.Attendance.objects.all()
+    permission_classes = [account.permissions.IsStudent |
+                           account.permissions.IsTeacher]
+    serializer_class = academics_serializers.MarkAttendence
+    

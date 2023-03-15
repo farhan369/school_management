@@ -33,6 +33,9 @@ class Account(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+    def get_fullname(self):
+        return f"{self.user.first_name} {self.user.last_name}"
 
 
 class Student(models.Model):
@@ -49,7 +52,7 @@ class Student(models.Model):
         Account,on_delete=models.CASCADE, primary_key=True)
     classroom = models.ManyToManyField(
         "academics.Classroom",
-        default=1,
+        default=None,
         through='academics.Enrollment',
         related_name="students",
     )

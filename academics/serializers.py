@@ -5,6 +5,8 @@ from rest_framework import status
 from account import models as account_models
 from . import models as academics_models
 
+import datetime 
+
 
 class ClassTeacherSerializer(serializers.ModelSerializer):
     """
@@ -125,10 +127,10 @@ class ResponseSerializer(serializers.ModelSerializer):
             return Response({"message":'already answered this question'})
 
         options_data = validated_data.pop('options')
-        print(options_data)
-        response =  academics_models.Response.objects.create(student=student,**validated_data)
-        for option_data in options_data:
-            option = academics_models.Option.objects.get(id=option_data)
+        response =  academics_models.Response.objects.create(student=student)
+        options = [*map(int, options_data[0].strip('[]').split(','))]
+        for option in options:
+            option = academics_models.Option.objects.get(id=option)
             response.option.add(option)
         return response
     
@@ -156,7 +158,7 @@ class ExamResultSerializer(serializers.Serializer):
             ret['exam'] = exam.name
             ret['standard'] = exam.classroom.standard
             ret['division'] = exam.classroom.division
-            ret['username'] = student.user.user.username
+            ret['full_name'] = student.user.get_fullname()
             questions = academics_models.Question.objects.filter(exam=exam)
             mark = 0
             for question in questions:
@@ -169,5 +171,37 @@ class ExamResultSerializer(serializers.Serializer):
                 score = score + response.option.filter(is_correct=True).count()
             ret['score'] = score #mark of the student
             return ret
-            
+
+
+class AccountSerializer(serializers.ModelSerializer):
+    """
+    this serializer is used as nested in classroom
+    serializer to print teachers data 
+    """
+    class Meta:
+        model = account_models.Account
+        fields = '__all__'
+
+
+class MarkAttendence(serializers.ModelSerializer):
+    """
+    Serializer for Attendence model
+    """
+    user  = AccountSerializer(read_only = True)
+    is_present = serializers.BooleanField(read_only=True)
+    class Meta:
+        model = academics_models.Attendance
+        fields = ["id","user","is_present","date"]
+
+    def create(self, validated_data):
+        """
+        to set the is_present field true and
+        to get the user from authtoken
+        """
+        user = self.context['request'].user.account
+
+        attendence = academics_models.Attendance.objects.create(
+            user=user,is_present=True)
+        return attendence
+
 

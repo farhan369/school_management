@@ -118,3 +118,18 @@ class Enrollment(models.Model):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     student = models.ForeignKey(account.models.Student, on_delete=models.CASCADE)
     enroll_date = models.DateField(default=date.today)
+
+
+class Attendance(models.Model):
+    """
+    Model to store attendance of students and teachers.
+    
+    Attribs:
+        user       : ForeignKey to get the user id of Account
+        date       : date for which attendance is taken
+        is_present : whether the user is present or absent on the given date
+        is_student : whether the user is a student or a teacher
+    """
+    user = models.ForeignKey(account.models.Account, on_delete=models.CASCADE)
+    date = models.DateField(default=date.today)
+    is_present = models.BooleanField(default=False)
