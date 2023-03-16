@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from account import models as account_models
+
 from . import models as academics_models
 
 import datetime 
@@ -34,8 +35,11 @@ class ClassroomSerializer(serializers.ModelSerializer):
         modifying to identify teacher object by username
         """
         teacher_username = validated_data.pop('teacher_username')
-        teacher = account_models.Teacher.objects.get(user__user__username = teacher_username)
-        classroom = academics_models.Classroom.objects.create(teacher=teacher,**validated_data)
+        # get teacher object by username
+        teacher = account_models.Teacher.objects.get(
+            user__user__username = teacher_username)
+        classroom = academics_models.Classroom.objects.create(
+            teacher=teacher,**validated_data)
         return classroom
 
 
@@ -57,7 +61,8 @@ class ExamSerilalizer(serializers.ModelSerializer):
         request = self.context.get("request")
         classroom_id = request.parser_context["kwargs"].get("id")
         classroom = academics_models.Classroom.objects.get(id=classroom_id)
-        exam = academics_models.Exam.objects.create(classroom=classroom, **validated_data)
+        exam = academics_models.Exam.objects.create(
+            classroom=classroom, **validated_data)
         return exam
 
 
@@ -91,9 +96,13 @@ class QuestionSerializer(serializers.ModelSerializer):
         options_data = validated_data.pop('options')
         exam_id = self.context['view'].kwargs.get('exam_id')
         exam = academics_models.Exam.objects.get(id=exam_id)
-        question = academics_models.Question.objects.create(exam = exam,**validated_data)
+        question = academics_models.Question.objects.create(
+            exam = exam, **validated_data)
+        
+        # create option for question created above 
         for option_data in options_data:
-            academics_models.Option.objects.create(question=question, **option_data)
+            academics_models.Option.objects.create(
+                question=question, **option_data)
         return question
 
 
@@ -128,6 +137,8 @@ class ResponseSerializer(serializers.ModelSerializer):
 
         options_data = validated_data.pop('options')
         response =  academics_models.Response.objects.create(student=student)
+        
+        # removes the [] from options and makes the option int type
         options = [*map(int, options_data[0].strip('[]').split(','))]
         for option in options:
             option = academics_models.Option.objects.get(id=option)
@@ -149,21 +160,29 @@ class ExamResultSerializer(serializers.Serializer):
             score = mark obtained by that student
         """
         def to_representation(self, instance):
+            """
+            function returns student details and exam result
+            """
             ret = dict()
             exam_id = instance.id
             student_id = self.context['view'].kwargs.get('student_id')
             exam = academics_models.Exam.objects.get(id=exam_id)
             student = account_models.Student.objects.get(
                 user__user__id=student_id)
+            
+            # set student and exam details
             ret['exam'] = exam.name
             ret['standard'] = exam.classroom.standard
             ret['division'] = exam.classroom.division
             ret['full_name'] = student.user.get_fullname()
+            
             questions = academics_models.Question.objects.filter(exam=exam)
             mark = 0
             for question in questions:
                 mark = mark + question.mark
             ret['total_mark'] = mark # max mark that can be scored
+            
+            # find the response of that student and calculate his mark
             responses = academics_models.Response.objects.filter(
                 student=student,option__question__exam =exam)
             score =0
@@ -175,8 +194,8 @@ class ExamResultSerializer(serializers.Serializer):
 
 class AccountSerializer(serializers.ModelSerializer):
     """
-    this serializer is used as nested in classroom
-    serializer to print teachers data 
+    this serializer is used as nested in MarkAttendence
+    serializer to print id of the user marking attendence
     """
     class Meta:
         model = account_models.Account

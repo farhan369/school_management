@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from  django_filters.rest_framework import DjangoFilterBackend
+
 from rest_framework import generics
 
 from . import models as academics_models
@@ -25,7 +27,8 @@ class ClassroomCreateView(generics.ListCreateAPIView):
     queryset = academics_models.Classroom.objects.all()
     serializer_class = academics_serializers.ClassroomSerializer
     permission_classes = [account.permissions.IsAdmin]
-
+    filterset_fields = ['standard','division']
+    
 
 class ExamCreateView(generics.ListCreateAPIView):
     """
@@ -40,9 +43,18 @@ class ExamCreateView(generics.ListCreateAPIView):
     Permissions:
     - Only users with 'admin or teacher' role can access this view.
     """
-    queryset = academics_models.Exam.objects.all()
     serializer_class = academics_serializers.ExamSerilalizer
     permission_classes = [account.permissions.IsStaff]
+    filterset_fields = ['name']
+
+    def get_queryset(self):
+        """
+        Returns a queryset of exam instances filtered by the 'classroom_id'
+        parameter passed in the URL.
+        """
+        classroom_id = self.kwargs.get('id')
+        queryset = academics_models.Exam.objects.filter(classroom_id=classroom_id)
+        return queryset
 
 
 class QuestionCreateView(generics.ListCreateAPIView):
@@ -61,6 +73,16 @@ class QuestionCreateView(generics.ListCreateAPIView):
     queryset = academics_models.Question.objects.all()
     serializer_class = academics_serializers.QuestionSerializer
     permission_classes = [account.permissions.IsStaff]
+    filterset_fields = ['mark','text']
+
+    def get_queryset(self):
+        """
+        Returns a queryset of question instances filtered by the 'exam_id'
+        parameter passed in the URL.
+        """
+        exam_id = self.kwargs.get('exam_id')
+        queryset = academics_models.Question.objects.filter(exam_id=exam_id)
+        return queryset
 
 
 class ResponseView(generics.CreateAPIView):

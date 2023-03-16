@@ -6,14 +6,11 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 
-from itertools import chain
 import openpyxl
 
 from academics import models as academics_models
 
-from event import models as event_models
 from event import constants as event_constants
-
 
 from . import models as account_models
 from . import constants as account_constants
@@ -37,7 +34,7 @@ class ClassroomExport(views.APIView):
         classroom = academics_models.Classroom.objects.get(id=classroom_id)
         class_teacher = classroom.teacher
         
-        if request.user.account.account_type == account_constants.TEACHER:
+        if request.user.account.account_type == account_constants.UserType.TEACHER:
             if class_teacher == request.user.account.teacher:
                 pass
             else:
@@ -60,6 +57,7 @@ class ClassroomExport(views.APIView):
             academic_sheet = wb.active
             academic_sheet.title = 'Academics'
 
+            # add headers
             academic_sheet.append(["Exam Name"," Start Time","End Time"])
             exams = classroom.exams.all()
             
@@ -80,16 +78,20 @@ class ClassroomExport(views.APIView):
                 name = event.name
                 fest = event.fest.name
                 event_type = event.event_type
-                if event_type == event_constants.TIME:
+                if event_type == event_constants.EventType.TIME:
                     event_type = 'RACE'
                 else:
                     event_type = 'THROW'
 
                 event_sheets.append([name,fest,event_type])
     
+        # creates an HttpResponse object with the content type excel
         response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename=classreport.xlsx'
+            content_type='application/vnd.openxmlformats-officedocument. \
+            spreadsheetml.sheet')
+        # set filename 
+        response['Content-Disposition'] = f'attachment; \
+        filename=classreport.xlsx'
 
         wb.save(response)
         return response
@@ -109,8 +111,8 @@ class StudentReportExport(views.APIView):
         as excel with the ddtails of the student
         """
         student = account_models.Student.objects.get(user__user__id=student_id)
-        print(request.user)
-        
+
+        # selects latest enrollment done by the student        
         latest_enrollment = student.enrollment_set.order_by(
             '-enroll_date').first()
         full_name = student.user.get_fullname()
@@ -119,7 +121,7 @@ class StudentReportExport(views.APIView):
         division = classroom.division
         class_teacher = classroom.teacher
 
-        if request.user.account.account_type == account_constants.TEACHER:
+        if request.user.account.account_type == account_constants.UserType.TEACHER:
              if class_teacher == request.user.account.teacher:
                   pass
              else:
@@ -127,6 +129,7 @@ class StudentReportExport(views.APIView):
                        {"message":"this teacher is not class teacher of \
                         the student"},status=status.HTTP_401_UNAUTHORIZED)
         
+        # open a workbook
         wb = openpyxl.Workbook()
         student_sheet = wb.active
         student_sheet.title = 'Academics'
@@ -135,11 +138,13 @@ class StudentReportExport(views.APIView):
         b4 = student_sheet['B4']
         c4 = student_sheet['C4']
 
+        # stores fill colors to fill in cells
         fill1 = openpyxl.styles.PatternFill(
             start_color='76332F', end_color='76332F', fill_type='solid')
         fill2 = openpyxl.styles.PatternFill(
             start_color='F0D020', end_color='F0D020', fill_type='solid')
         
+        # set the student details in excel
         student_sheet['A1'] = 'Full Name'
         student_sheet['B1'] = full_name
         student_sheet['A2'] = 'Standard'
@@ -158,6 +163,7 @@ class StudentReportExport(views.APIView):
         for cell in [a4,b4,c4]:
                     cell.fill = fill2    
         
+        # takes all exam object
         exams = latest_enrollment.classroom.exams.all()
         for exam in exams:
             questions = academics_models.Question.objects.filter(exam=exam)
@@ -173,13 +179,17 @@ class StudentReportExport(views.APIView):
                     score = score + response.option.filter(
                         is_correct=True).count()
                 score = score #mark of the student
+                # store data to sheet 
                 student_sheet.append([exam.name,total_mark,score])
             else:
                 student_sheet.append([exam.name,total_mark,"Not Written"])
 
+        # creates an HttpResponse object with the content type excel
         response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        response['Content-Disposition'] = f'attachment; filename=studentreport.xlsx'
+            content_type='application/vnd.openxmlformats-officedocument \
+            .spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; \
+        filename=studentreport.xlsx'
 
         wb.save(response)
         return response
@@ -203,7 +213,7 @@ class SchoolMembers(views.APIView):
         teachers = account_models.Teacher.objects.all()
         students = account_models.Student.objects.all()
         admins = account_models.Account.objects.filter(
-            user_type = account_constants.ADMIN)
+            user_type = account_constants.UserType.ADMIN)
         
         wb = openpyxl.Workbook()
         members_sheet = wb.active
@@ -211,6 +221,7 @@ class SchoolMembers(views.APIView):
         fill1 = openpyxl.styles.PatternFill(
             start_color='76332F', end_color='76332F', fill_type='solid')
 
+        # Set the headers
         members_sheet['A1'] = 'Full Name'
         members_sheet['B1'] = 'Role'
         members_sheet['C1'] = 'Standard'
@@ -222,6 +233,7 @@ class SchoolMembers(views.APIView):
         members_sheet['C1'].fill = fill1      
         members_sheet['D1'].fill = fill1      
 
+        # add teacher data to sheet
         for teacher in teachers:
             full_name = teacher.user.get_fullname()
             role = 'TEACHER'
@@ -232,7 +244,8 @@ class SchoolMembers(views.APIView):
                 standard = None
                 division = None
             members_sheet.append([full_name,role,standard,division])
-
+        
+        # add student data to sheet
         for student in students:
             full_name = teacher.user.get_fullname()
             role = 'STUDENT'
@@ -245,11 +258,14 @@ class SchoolMembers(views.APIView):
                 standard = None
                 division = None
             members_sheet.append([full_name,role,standard,division])
+               
+        # add admin data to sheet
         for admin in admins:
             full_name = admin.get_fullname()
             role = 'ADMIN'
             members_sheet.append([full_name,role])
         
+        # creates an HttpResponse object with the content type excel
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename=schoolreport.xlsx'
@@ -282,9 +298,11 @@ class BestTeacher(views.APIView):
         fill1 = openpyxl.styles.PatternFill(
             start_color='76332F', end_color='76332F', fill_type='solid')
         
+        # set header in sheets
         teacher_sheet['A1'] = 'Full Name'
         teacher_sheet['B1'] = 'Performance'
 
+        # set color to header cells
         teacher_sheet['A1'].fill = fill1
         teacher_sheet['B1'].fill = fill1
 
@@ -311,11 +329,15 @@ class BestTeacher(views.APIView):
                     correct_responses / (total_questions * students.count())) * 100
             except Exception as e:
                 teacher_performance[classroom.teacher.user.user.username]=0
-            
+
+        # sort the teacher performance   
         teacher_performance = dict(sorted(teacher_performance.items(), key=lambda x: x[1], reverse=True))
+
+        # enter teacher details into sheets
         for key,value in teacher_performance.items():
             teacher_sheet.append([key,value])
         
+        # creates an HttpResponse object with the content type excel
         response = HttpResponse(
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = f'attachment; filename=teacherreport.xlsx'

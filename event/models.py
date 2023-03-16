@@ -42,12 +42,13 @@ class Event(models.Model):
     standards = models.ManyToManyField(academics.models.Classroom,
                 related_name="events", blank=True, default=None)
     event_type = models.IntegerField(
-                 default=event_constants.TIME,
-                 choices=event_constants.EVENT_TYPE_CHOICE,
+                 default=None,
+                 choices=event_constants.EventType.EVENT_TYPE_CHOICE,
                  null=True,blank=True)
 
     def __str__(self):
         return self.name
+
 
 class EventRegistration(models.Model):
     """

@@ -1,22 +1,16 @@
 from django.shortcuts import render
-from .permissions import IsAdmin, IsStaff
-from .models import Account, Teacher, Student
-from .serializers import (
-    AccountCreateSerializer,
-    AuthTokenSerializer,
-    TeacherSerializer,
-    StudentSerializer,
-)
-from django.contrib.auth.models import User
-from . import constants as account_constants
-from rest_framework import generics, permissions, status
-from django.views.decorators.csrf import csrf_exempt
+from  django_filters.rest_framework import DjangoFilterBackend
+
+from . import permissions
+from . import models as account_models
+from . import serializers as account_serializer
+from . import filters
+
+from rest_framework import generics
 from rest_framework.settings import api_settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from academics.models import Classroom
-
 
 # Create your views here.
 
@@ -38,11 +32,9 @@ class SignUpView(generics.CreateAPIView):
     # this api creates a admin account by an admin
     # UserCreationPermission - checker whether the value provided in
     # user_type field is of ADMIN
-    queryset = Account.objects.all
-    serializer_class = AccountCreateSerializer
-    permission_classes = [
-        IsAdmin,
-    ]
+    queryset = account_models.Account.objects.all
+    serializer_class = account_serializer.AccountCreateSerializer
+    permission_classes = [permissions.IsAdmin]
 
 
 class ObtainAuthTokenView(ObtainAuthToken):
@@ -72,7 +64,7 @@ class ObtainAuthTokenView(ObtainAuthToken):
 
     """
 
-    serializer_class = AuthTokenSerializer
+    serializer_class = account_serializer.AuthTokenSerializer
 
     def post(self, request, *args, **kwargs):
         """Handle HTTP POST request"""
@@ -83,7 +75,8 @@ class ObtainAuthTokenView(ObtainAuthToken):
         user = serializer.validated_data["user"]
         token, created = Token.objects.get_or_create(user=user)
         return Response(
-            {"token": token.key, "id": user.id}  # Include the id field in the response
+             # Include the id field in the response
+            {"token": token.key, "id": user.id} 
         )
 
 
@@ -92,11 +85,10 @@ class CreateTeacherView(generics.ListCreateAPIView):
     This api creates a teacher account by an admin
     it also return list of teachers
     """
-    serializer_class = TeacherSerializer
-    permission_classes = [
-        IsAdmin,
-    ]
-    queryset = Teacher.objects.all()
+    serializer_class = account_serializer.TeacherSerializer
+    permission_classes = [permissions.IsAdmin]
+    queryset = account_models.Teacher.objects.all()
+    filterset_class = filters.TeacherFilter
 
 
 class CreateStudentView(generics.ListCreateAPIView):
@@ -104,8 +96,8 @@ class CreateStudentView(generics.ListCreateAPIView):
     This api is used for create/list student
     it can be only accessed by teacher of that class or admin
     """
-    permission_classes = [
-        IsStaff,
-    ]
-    serializer_class = StudentSerializer
-    queryset = Student.objects.all()
+    permission_classes = [permissions.IsStaff]
+    serializer_class = account_serializer.StudentSerializer
+    queryset = account_models.Student.objects.all()
+    filterset_class = filters.StudentFilterSet
+

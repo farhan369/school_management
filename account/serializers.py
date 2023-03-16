@@ -1,13 +1,11 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from .models import Account, Teacher, Student
-from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 from . import constants as account_constants
 from rest_framework.response import Response
 from rest_framework import status
-from academics.serializers import ClassroomSerializer
 from academics.models import Classroom
 
 
@@ -52,12 +50,13 @@ class AccountCreateSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop("user")
         user_type = validated_data["user_type"]
 
-        if user_type == account_constants.ADMIN:
+        if user_type == account_constants.UserType.ADMIN:
             user = User.objects.create_user(**user_data, is_active=True)
             account = Account.objects.create(user=user, **validated_data)
             return account
         return Response(
-            {"error": "user is not of type ADMIN"}, status=status.HTTP_401_UNAUTHORIZED
+            {"error": "user is not of type ADMIN"},
+             status=status.HTTP_401_UNAUTHORIZED
         )
 
 
@@ -82,8 +81,7 @@ class TeacherSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source="user.user.first_name")
     last_name = serializers.CharField(source="user.user.last_name")
     user_type = serializers.IntegerField(source="user.user_type")
-
-
+    
     class Meta:
         model = Teacher
         fields = (
@@ -135,7 +133,7 @@ class StudentSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop("user")
         user_type = user_data["user_type"]
 
-        if user_type == account_constants.STUDENT:
+        if user_type == account_constants.UserType.STUDENT:
             try:
                 """
                 This try except block check if the classroom
@@ -146,7 +144,7 @@ class StudentSerializer(serializers.ModelSerializer):
                 request_user_type = account.user_type
                 request_user_type = int(request_user_type)
                 # Checks whether the teacher is assigned to the given class
-                if request_user_type == account_constants.TEACHER:
+                if request_user_type == account_constants.UserType.TEACHER:
                     print('3')
                     class_teacher_id = classroom.teacher.user.user.id
                     if class_teacher_id != self.context["request"].user.id:
@@ -160,6 +158,7 @@ class StudentSerializer(serializers.ModelSerializer):
                     {"error": str(e), "app_data": "classroom doesn't exist"},
                     status=status.HTTP_406_NOT_ACCEPTABLE,
                 )
+            # create student object 
             user = User.objects.create_user(**user_data["user"])
             account = Account.objects.create(user=user, user_type=user_type)
             class_room = Classroom.objects.get(id=validated_data["class_room"])
@@ -168,7 +167,6 @@ class StudentSerializer(serializers.ModelSerializer):
             return student
         else:
             return print("user is not student")
-
 
 
 class AuthTokenSerializer(serializers.Serializer):

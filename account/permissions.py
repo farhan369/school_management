@@ -41,7 +41,10 @@ class IsStaff(BasePermission):
     def has_permission(self, request, view):
         # access the account to get user_type associated with user
         user_type = request.user.account.user_type
-        access_users = [account_constants.ADMIN, account_constants.TEACHER]
+        access_users = [
+            account_constants.UserType.ADMIN,
+            account_constants.UserType.TEACHER
+            ]
         if user_type in access_users:
             return True
         else:

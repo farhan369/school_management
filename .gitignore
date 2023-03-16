@@ -6,4 +6,5 @@ account/__pycache__/
 account/migrations/__pycache__/
 event/__pycache__/
 event/migrations/__pycache__
+__pycache__/
 

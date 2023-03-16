@@ -1,10 +1,11 @@
 from django.db import models
+
 import account.models
 
 from datetime import date
 
-# Create your models here.
 
+# Create your models here.
 
 class Classroom(models.Model):
     """
@@ -72,9 +73,9 @@ class Option(models.Model):
     """
     Model to store all options
     Attribs:
-    is_correct   : denotes whether the option is correct
-    option       : option itself
-    question     : foreign key to know which question holds the option
+        is_correct   : denotes whether the option is correct
+        option       : option itself
+        question     : foreign key to know which question holds the option
     """
 
     is_correct = models.BooleanField(null=True, blank=True, default=False)
@@ -91,8 +92,8 @@ class Response(models.Model):
     """
     Model to the response a student to a question
     Attribs:
-    option   :  foreign key to know which option was selected
-    student  :  foreign key to know which student choose
+        option   :  foreign key to know which option was selected
+        student  :  foreign key to know which student choose
 
     """
 
@@ -111,9 +112,9 @@ class Enrollment(models.Model):
     """
     Model to store the relationship between a student and a classroom.
     Attribs:
-    classroom : foreign key to know which class the student belongs
-    student : foreign key to know which student belongs to the class
-    enroll_date : date on which the student enrolled in the class
+        classroom : foreign key to know which class the student belongs
+        student : foreign key to know which student belongs to the class
+        enroll_date : date on which the student enrolled in the class
     """
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     student = models.ForeignKey(account.models.Student, on_delete=models.CASCADE)

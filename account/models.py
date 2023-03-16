@@ -28,7 +28,8 @@ class Account(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     user_type = models.PositiveSmallIntegerField(
-        default=None, choices=account_constants.USER_TYPE_CHOICES, null=True, blank=True
+        default=None, choices=account_constants.UserType.USER_TYPE_CHOICES,
+        null=True, blank=True
     )
 
     def __str__(self):

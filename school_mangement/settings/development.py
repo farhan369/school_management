@@ -1,9 +1,11 @@
 from school_mangement.settings.common import *
+
 import environ
 
 
 env = environ.Env()
 environ.Env.read_env()
+
 SECRET_KEY = env("SECRET_KEY")
 
 INSTALLED_APPS = [
@@ -23,13 +25,17 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "django_celery_beat",
     "django_celery_results",
+    "django_filters",
 ]
+
 # To set up authentication using AuthToken
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.TokenAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_FILTER_BACKENDS": ['django_filters.rest_framework.DjangoFilterBackend']
+
 }
 
 ALLOWED_HOSTS = ["0.0.0.0", "localhost", "127.0.0.1"]
@@ -58,12 +64,12 @@ CELERY_BROKER_URL = env('CELERY_BROKER_REDIS_URL', default='redis://localhost:63
 # this allows you to schedule items in the Django admin.
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
-
+# email details
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = env("EMAIL_HOST")
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'farhanfm177@gmail.com'
-EMAIL_HOST_PASSWORD = 'wzruusuejavyrigd'
+EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 
-RECIPIENT_ADDRESS = 'farhanfm177@gmail.com'
+RECIPIENT_ADDRESS = env("RECIPIENT_ADDRESS")

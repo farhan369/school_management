@@ -1,5 +1,5 @@
 import pandas as pd
-import random
+
 from celery import shared_task
 
 from django.core.mail import EmailMessage
@@ -8,7 +8,6 @@ from django.conf import settings
 
 from rest_framework import views
 
-from account import permissions
 from academics import models as academics_models
 
 
@@ -32,6 +31,10 @@ def daily_attendance_email():
     """
     # Get attendance data for today
     today = timezone.now().date()
+
+    # retrives the attendance object where date is today and performs 
+    # JOIN operation to retrieve related data for the user field 
+    # in the Attendance model
     attendance_data = academics_models.Attendance.objects.filter(
         date=today).select_related('user')
     
