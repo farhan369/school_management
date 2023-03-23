@@ -8,6 +8,7 @@ from . import models as academics_models
 
 import datetime 
 
+from rest_framework.exceptions import ValidationError
 
 class ClassTeacherSerializer(serializers.ModelSerializer):
     """
@@ -36,8 +37,13 @@ class ClassroomSerializer(serializers.ModelSerializer):
         """
         teacher_username = validated_data.pop('teacher_username')
         # get teacher object by username
-        teacher = account_models.Teacher.objects.get(
-            user__user__username = teacher_username)
+        try:
+            teacher = account_models.Teacher.objects.get(
+                user__user__username = teacher_username)
+        except account_models.Teacher.DoesNotExist:
+            raise ValidationError(
+                {'message': 'Teacher with this username does not exist.'})
+
         classroom = academics_models.Classroom.objects.create(
             teacher=teacher,**validated_data)
         return classroom

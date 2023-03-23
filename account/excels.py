@@ -34,7 +34,7 @@ class ClassroomExport(views.APIView):
         classroom = academics_models.Classroom.objects.get(id=classroom_id)
         class_teacher = classroom.teacher
         
-        if request.user.account.account_type == account_constants.UserType.TEACHER:
+        if request.user.account.user_type == account_constants.UserType.TEACHER:
             if class_teacher == request.user.account.teacher:
                 pass
             else:
@@ -63,9 +63,8 @@ class ClassroomExport(views.APIView):
             
             for exam in exams:
                 name = exam.name
-                start = exam.start_time
-                end = exam.end_time
-
+                start = str(exam.start_time)
+                end = str(exam.end_time)
                 academic_sheet.append([name,start,end])
                 
         if 'event' in sheets:
