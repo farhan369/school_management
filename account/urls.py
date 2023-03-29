@@ -1,20 +1,20 @@
 from django.urls import path
-from .views import *
+from . import views as account_views
 from .excels import *
+from rest_framework import routers
+
+router = routers.DefaultRouter()
 
 
 urlpatterns = [
-    # create admin url
-     path("signup/", SignUpView.as_view(), name="signup"),
-
      # login returns AuthToken
-     path("login/", ObtainAuthTokenView.as_view(), name="login"),
+     path("login/", account_views.ObtainAuthTokenView.as_view(), name="login"),
 
      # to create and get all teacher instances (can filter by classroom)
-     path("teacher/", CreateTeacherView.as_view(), name="createteacher"),
+     path("teacher/", account_views.CreateTeacherView.as_view(), name="createteacher"),
 
      # to create and get all student instances (can filter by classroom)
-     path("student/", CreateStudentView.as_view(), name="createstudent"),
+     path("student/", account_views.CreateStudentView.as_view(), name="createstudent"),
     
     #excel urls
 
@@ -33,3 +33,5 @@ urlpatterns = [
      path("teacherreport/",BestTeacher.as_view(), name="teacher_report"),
 
 ]
+router.register('admin',account_views.AdminViewSet,basename='admin')
+urlpatterns += router.urls

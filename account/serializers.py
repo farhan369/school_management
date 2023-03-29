@@ -1,30 +1,33 @@
-from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Account, Teacher, Student
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
+
+from . import models as account_models
 from . import constants as account_constants
+
+from rest_framework import serializers
+from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
+
 from academics.models import Classroom
 
 
-class AccountCreateSerializer(serializers.ModelSerializer):
+class AdminSerializer(serializers.ModelSerializer):
     """
     This class  serialize Account object
     """
-    # This serializer is used to create an admin user
 
-    username = serializers.CharField(source="user.username")
-    email = serializers.EmailField(source="user.email")
-    password = serializers.CharField(source="user.password", write_only=True)
-    first_name = serializers.CharField(source="user.first_name")
-    last_name = serializers.CharField(source="user.last_name")
+    password = serializers.CharField(write_only=True)
+
 
     class Meta:
-        # this class define the model and the variables that need to be
-        # serialized in order
-        model = Account
+        """ 
+        this class define the model and 
+        the variables that need to be serialized in order
+        """
+        
+        model = account_models.Account
         fields = (
             "id",
             "username",
@@ -35,55 +38,49 @@ class AccountCreateSerializer(serializers.ModelSerializer):
             "user_type",
         )
 
-    """     
-    def validate_email(self, value):
-        # this function is to check whether another account exist with
-        # given email
-        if User.objects.filter(email=value).exists():
-            raise serializers.ValidationError('Email address must be unique')
-        return value
-        """
+         
+    # def validate_email(self, value):
+    #     # this function is to check whether another account exist with
+    #     # given email
+    #     if User.objects.filter(email=value).exists():
+    #         raise serializers.ValidationError('Email address must be unique')
+    #     return value
+        
 
-    # To create Account object in DataBase before creating account 
-    # We need to create user account so create method is overridden
-    def create(self, validated_data):
-        user_data = validated_data.pop("user")
-        user_type = validated_data["user_type"]
+    def update(self, instance, validated_data):
+        """ overriden to check whether the instance is of request user"""
+        
+        user = self.context['request'].user
+        if user != instance:
+            raise serializers.ValidationError(
+                "You can only update your own account.")
+        print(validated_data)
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.set_password(password)
+            instance.save()
 
-        if user_type == account_constants.UserType.ADMIN:
-            user = User.objects.create_user(**user_data, is_active=True)
-            account = Account.objects.create(user=user, **validated_data)
-            return account
-        return Response(
-            {"error": "user is not of type ADMIN"},
-             status=status.HTTP_401_UNAUTHORIZED
-        )
+        return super().update(instance, validated_data)
 
 
 class TeacherSerializer(serializers.ModelSerializer):
     """
     Serilizer used to serialize Teacher Object
-    """
-
-    """
-    class to store values for user fields.
 
     Attribs:   
-        Teacher Object attrubtes : [username,email,first_name,last_name
-                                   ,last_name ,user_type]
-        account                  : to store instance of Account
-        user                     : to store instance of User that is created
-        teacher                  : to store instance of Teacher that is created
-"""
-    username = serializers.CharField(source="user.user.username")
-    email = serializers.EmailField(source="user.user.email")
-    password = serializers.CharField(source="user.user.password", write_only=True)
-    first_name = serializers.CharField(source="user.user.first_name")
-    last_name = serializers.CharField(source="user.user.last_name")
-    user_type = serializers.IntegerField(source="user.user_type")
-    
+        Teacher Object attribtes : [username,email,first_name,last_name
+                                   ,last_name ,user_type,password]
+    """
+
+    password = serializers.CharField(write_only=True)
+ 
+
     class Meta:
-        model = Teacher
+        """
+        A class that defines metadata for a Django ModelForm for Teacher.
+        """
+
+        model = account_models.Teacher
         fields = (
             "username",
             "email",
@@ -92,15 +89,14 @@ class TeacherSerializer(serializers.ModelSerializer):
             "last_name",
             "user_type",
         )
-
+    
     def create(self, validated_data):
-        user_data = validated_data.pop("user")
-        # To store user data to user object
-        user_type = user_data["user_type"]
-        user = User.objects.create_user(**user_data["user"])
-        account = Account.objects.create(user=user, user_type=user_type)
-        teacher = Teacher.objects.create(user=account)
-        return teacher
+        """overriden to check whether user is of teacher"""
+        user_type = validated_data["user_type"]
+        if user_type == account_constants.UserType.TEACHER:
+            return super().create(validated_data)
+        else:
+            raise ValidationError("user is not of type teacher")
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -108,16 +104,16 @@ class StudentSerializer(serializers.ModelSerializer):
     Serilizer used to create Student Object
     """
 
-    username = serializers.CharField(source="user.user.username")
-    email = serializers.EmailField(source="user.user.email")
-    password = serializers.CharField(source="user.user.password", write_only=True)
-    first_name = serializers.CharField(source="user.user.first_name")
-    last_name = serializers.CharField(source="user.user.last_name")
-    class_room = serializers.IntegerField(write_only=True)
-    user_type = serializers.IntegerField(source="user.user_type")
+    password = serializers.CharField(write_only=True)
+    classroom_id = serializers.IntegerField(write_only=True)
+
 
     class Meta:
-        model = Student
+        """
+        A class that defines metadata for a Django ModelForm for Student.
+        """
+
+        model = account_models.Student
         fields = (
             "username",
             "email",
@@ -126,47 +122,36 @@ class StudentSerializer(serializers.ModelSerializer):
             "first_name",
             "last_name",
             "user_type",
-            "class_room",
-        )
+            "classroom_id",
+            )
 
     def create(self, validated_data):
-        user_data = validated_data.pop("user")
-        user_type = user_data["user_type"]
+        """
+        overridden to check if user is student and
+        request teacher belong to given classroom
+        """
+        user_type = validated_data["user_type"]
+        classroom_id = validated_data.pop('classroom_id')
 
         if user_type == account_constants.UserType.STUDENT:
             try:
-                """
-                This try except block check if the classroom
-                exists
-                """
-                classroom = Classroom.objects.get(id=validated_data["class_room"])
-                account = self.context["request"].user.account
-                request_user_type = account.user_type
-                request_user_type = int(request_user_type)
-                # Checks whether the teacher is assigned to the given class
-                if request_user_type == account_constants.UserType.TEACHER:
-                    print('3')
-                    class_teacher_id = classroom.teacher.user.user.id
-                    if class_teacher_id != self.context["request"].user.id:
-                        return Response(
-                            {"error": "teacher is not assigned to this class"},
-                            status=status.HTTP_406_NOT_ACCEPTABLE,
-                        )
+                classroom = Classroom.objects.get(
+                    id=classroom_id)
+            except:
+                raise ObjectDoesNotExist("given classroom doesn't exist")
+            request_user_type = self.context["request"].user.user_type
+            request_user_type = int(request_user_type)
 
-            except Exception as e:
-                return Response(
-                    {"error": str(e), "app_data": "classroom doesn't exist"},
-                    status=status.HTTP_406_NOT_ACCEPTABLE,
-                )
-            # create student object 
-            user = User.objects.create_user(**user_data["user"])
-            account = Account.objects.create(user=user, user_type=user_type)
-            class_room = Classroom.objects.get(id=validated_data["class_room"])
-            student = Student.objects.create(user=account)
-            student.classroom.set([class_room])
+            if request_user_type == account_constants.UserType.TEACHER:
+                class_teacher_id = classroom.teacher.id
+                if class_teacher_id != self.context["request"].user.id:
+                    raise ValidationError(
+                        "teacher doesn't belong to this classroom")
+
+            student =  super().create(validated_data)
+            student.classroom.add(classroom)
+            student.save()
             return student
-        else:
-            return print("user is not student")
 
 
 class AuthTokenSerializer(serializers.Serializer):
@@ -174,8 +159,7 @@ class AuthTokenSerializer(serializers.Serializer):
     This is a serializer for the Django Rest Framework authentication
     token.The authentication token provides a way to authenticate users using
     an API key.
-
-
+    
     inputs :
         username of user
         password of user
@@ -192,19 +176,17 @@ class AuthTokenSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
 
     def validate(self, attrs):
+        """validate username and password and returns token"""
         username = attrs.get("username")
         password = attrs.get("password")
 
         if username and password:
-            # checks if username and password enetered
             user = authenticate(
                 request=self.context.get("request"),
                 username=username,
                 password=password,
             )
-
             if not user:
-                # if user object is not created the credentials were incorrect
                 msg = "Unable to authenticate with provided credentials"
                 raise serializers.ValidationError(msg, code="authentication")
 
@@ -212,20 +194,10 @@ class AuthTokenSerializer(serializers.Serializer):
             msg = 'Must include "username" and "password".'
             raise serializers.ValidationError(msg, code="authorization")
 
-        try:
-            # we are retrieving the account object associated with user
-            # using  'user.account' synntax
-            account = user.account
-        except Account.DoesNotExist:
-            msg = "User account not found"
-            raise serializers.ValidationError(msg, code="authentication")
-
-        # using the one to one field of model 'user' to set atributes of
-        # Account model
-        attrs["user"] = account.user
+        attrs["user"] = user
 
         # Create or update the user's token
         token, _ = Token.objects.get_or_create(user=user)
         attrs["token"] = token.key
-        attrs["id"] = account.user.id
+        attrs["id"] = user.id
         return attrs

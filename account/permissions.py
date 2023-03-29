@@ -1,10 +1,14 @@
-from rest_framework.permissions import BasePermission
 from . import constants as account_constants
+
 from rest_framework.response import Response
 from rest_framework import status
-from academics.models import Classroom
-from django.conf import settings
 from rest_framework.authtoken.models import Token
+from rest_framework.permissions import BasePermission
+
+from academics.models import Classroom
+
+from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.core.exceptions import BadRequest
 
 
@@ -18,15 +22,15 @@ class IsAdmin(BasePermission):
     """
 
     def has_permission(self, request, view):
+        """This function checks if user of type ADMIN"""
         try:
-            account = request.user.account
-            user_type = account.user_type
-            if user_type == account_constants.ADMIN:
+            user_type = request.user.user_type
+            if user_type == account_constants.UserType.ADMIN:
                 return True
             else:
                 return False
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            raise ValidationError("not a valid user")
 
 
 class IsStaff(BasePermission):
@@ -39,8 +43,9 @@ class IsStaff(BasePermission):
     """
 
     def has_permission(self, request, view):
-        # access the account to get user_type associated with user
-        user_type = request.user.account.user_type
+        """check if user type is teacher or student"""
+        
+        user_type = request.user.user_type
         access_users = [
             account_constants.UserType.ADMIN,
             account_constants.UserType.TEACHER
@@ -61,15 +66,16 @@ class IsStudent(BasePermission):
     """
 
     def has_permission(self, request, view):
+        """check if user type is student"""
+        
         try:
-            account = request.user.account
-            user_type = account.user_type
+            user_type = request.user.user_type
             if user_type == account_constants.STUDENT:
                 return True
             else:
                 return False
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError('not a valid user')
         
 
 class IsTeacher(BasePermission):
@@ -82,12 +88,13 @@ class IsTeacher(BasePermission):
     """
 
     def has_permission(self, request, view):
+        """check if user type is teacher"""
+        
         try:
-            account = request.user.account
-            user_type = account.user_type
+            user_type = request.user.user_type
             if user_type == account_constants.TEACHER:
                 return True
             else:
                 return False
         except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            raise ValidationError('not a valid user')

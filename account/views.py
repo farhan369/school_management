@@ -4,9 +4,11 @@ from  django_filters.rest_framework import DjangoFilterBackend
 from . import permissions
 from . import models as account_models
 from . import serializers as account_serializer
+from . import constants as account_constants
 from . import filters
 
-from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, viewsets
 from rest_framework.settings import api_settings
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.response import Response
@@ -15,10 +17,13 @@ from rest_framework.authtoken.models import Token
 # Create your views here.
 
 
-class SignUpView(generics.CreateAPIView):
+class AdminViewSet(viewsets.ModelViewSet):
     """
-    api for sign up
-    can only be accessed by admin
+    view for managing admin accounts
+    
+    can only be accessed by admin,
+    admin will be given username and password created in django admin
+    admin can login using that credentials and add his data
 
     Attribs:
         queryset             : This attribute sets the queryset of Account
@@ -27,14 +32,25 @@ class SignUpView(generics.CreateAPIView):
                                that will be used for this view.
         permission_classes   : This attribute sets the permission
                                classes that will be used for this view
+    
+    Methods:                 : get,patch,delete            
     """
-
-    # this api creates a admin account by an admin
-    # UserCreationPermission - checker whether the value provided in
-    # user_type field is of ADMIN
-    queryset = account_models.Account.objects.all
-    serializer_class = account_serializer.AccountCreateSerializer
-    permission_classes = [permissions.IsAdmin]
+    
+    http_method_names = ['get', 'patch', 'delete']
+    permission_classes = [permissions.IsAdmin,IsAuthenticated]
+    serializer_class = account_serializer.AdminSerializer
+    queryset = account_models.Account.objects.filter(
+        user_type=account_constants.UserType.ADMIN)
+    
+    def destroy(self, request, *args, **kwargs):
+        """
+        to deactivate an account when delete request is encountered
+        """
+        
+        account = self.get_object()
+        account.is_active = False
+        account.save()
+        return Response(data='account deactivated')
 
 
 class ObtainAuthTokenView(ObtainAuthToken):
@@ -44,7 +60,6 @@ class ObtainAuthTokenView(ObtainAuthToken):
     from the serializer is validated.
 
     Used for login
-
 
     Attribs:
         serializer_class     : This attribute sets the serializer class
@@ -82,22 +97,23 @@ class ObtainAuthTokenView(ObtainAuthToken):
 
 class CreateTeacherView(generics.ListCreateAPIView):
     """
-    This api creates a teacher account by an admin
-    it also return list of teachers
+    This view managing teacher model
+    This view handles post and get request
     """
+
+    permission_classes = [permissions.IsAdmin,IsAuthenticated]
     serializer_class = account_serializer.TeacherSerializer
-    permission_classes = [permissions.IsAdmin]
     queryset = account_models.Teacher.objects.all()
     filterset_class = filters.TeacherFilter
 
 
 class CreateStudentView(generics.ListCreateAPIView):
     """
-    This api is used for create/list student
+    This view is used for create/list student
     it can be only accessed by teacher of that class or admin
     """
-    permission_classes = [permissions.IsStaff]
+
+    permission_classes = [permissions.IsStaff,IsAuthenticated]
     serializer_class = account_serializer.StudentSerializer
     queryset = account_models.Student.objects.all()
     filterset_class = filters.StudentFilterSet
-

@@ -15,7 +15,7 @@ class ClassTeacherSerializer(serializers.ModelSerializer):
     this serializer is used as nested in classroom
     serializer to print teachers data 
     """
-    username = serializers.CharField(source="user.user.username") 
+    password = serializers.CharField(write_only=True)
     class Meta:
         model = account_models.Teacher
         fields = '__all__'
@@ -39,7 +39,7 @@ class ClassroomSerializer(serializers.ModelSerializer):
         # get teacher object by username
         try:
             teacher = account_models.Teacher.objects.get(
-                user__user__username = teacher_username)
+                username = teacher_username)
         except account_models.Teacher.DoesNotExist:
             raise ValidationError(
                 {'message': 'Teacher with this username does not exist.'})
