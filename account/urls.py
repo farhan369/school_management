@@ -8,7 +8,7 @@ router = routers.DefaultRouter()
 
 urlpatterns = [
      # login returns AuthToken
-     path("login/", account_views.ObtainAuthTokenView.as_view(), name="login"),
+     path("login/", account_views.LoginView.as_view(), name="login"),
 
      # to create and get all teacher instances (can filter by classroom)
      path("teacher/", account_views.CreateTeacherView.as_view(), name="createteacher"),
@@ -33,5 +33,5 @@ urlpatterns = [
      path("teacherreport/",BestTeacher.as_view(), name="teacher_report"),
 
 ]
-router.register('admin',account_views.AdminViewSet,basename='admin')
+router.register('admin', account_views.AdminViewSet,basename='admin')
 urlpatterns += router.urls

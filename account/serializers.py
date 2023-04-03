@@ -154,7 +154,7 @@ class StudentSerializer(serializers.ModelSerializer):
             return student
 
 
-class AuthTokenSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     """
     This is a serializer for the Django Rest Framework authentication
     token.The authentication token provides a way to authenticate users using

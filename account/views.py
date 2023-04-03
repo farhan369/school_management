@@ -53,7 +53,7 @@ class AdminViewSet(viewsets.ModelViewSet):
         return Response(data='account deactivated')
 
 
-class ObtainAuthTokenView(ObtainAuthToken):
+class LoginView(ObtainAuthToken):
     """
     Handle creating user authentication tokens
     used to return token and id when the data
@@ -79,7 +79,7 @@ class ObtainAuthTokenView(ObtainAuthToken):
 
     """
 
-    serializer_class = account_serializer.AuthTokenSerializer
+    serializer_class = account_serializer.LoginSerializer
 
     def post(self, request, *args, **kwargs):
         """Handle HTTP POST request"""
