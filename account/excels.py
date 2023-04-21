@@ -18,12 +18,13 @@ from . import permissions
 
 
 class ClassroomExport(views.APIView):
-
     """
     Generate an excel report for a given classroom,
     with separate sheets for academics and events.
     """
+    
     permission_classes = [permissions.IsStaff]
+    
     def get(self,request,classroom_id):
         """
         when a get request is given to this view
@@ -31,11 +32,12 @@ class ClassroomExport(views.APIView):
         an excel sheet of the class details about academics 
         and events
         """
+    
         classroom = academics_models.Classroom.objects.get(id=classroom_id)
         class_teacher = classroom.teacher
         
-        if request.user.account.user_type == account_constants.UserType.TEACHER:
-            if class_teacher == request.user.account.teacher:
+        if request.user.user_type == account_constants.UserType.TEACHER:
+            if class_teacher == request.user.teacher:
                 pass
             else:
                 return Response(
@@ -101,6 +103,7 @@ class StudentReportExport(views.APIView):
     Generate an excel report for a given student
     the detail includes his performance in exams
     """
+    
     permission_classes = [permissions.IsStaff]
 
     def get(self, request,student_id):
@@ -109,6 +112,7 @@ class StudentReportExport(views.APIView):
         and returns the performance of the student in academics 
         as excel with the ddtails of the student
         """
+        
         student = account_models.Student.objects.get(user__user__id=student_id)
 
         # selects latest enrollment done by the student        
@@ -116,7 +120,7 @@ class StudentReportExport(views.APIView):
             '-enroll_date').first()
         full_name = student.user.get_fullname()
         classroom = latest_enrollment.classroom
-        standard = classroom.standard
+        standard = classroom.standard.name
         division = classroom.division
         class_teacher = classroom.teacher
 
@@ -202,6 +206,7 @@ class SchoolMembers(views.APIView):
     permission
     - Only admins can give this request
     """
+   
     permission_classes = [permissions.IsAdmin]
 
     def get(self, request):
@@ -209,6 +214,7 @@ class SchoolMembers(views.APIView):
         this  get request returns all members of the school
         with their classroom details and role
         """
+      
         teachers = account_models.Teacher.objects.all()
         students = account_models.Student.objects.all()
         admins = account_models.Account.objects.filter(
@@ -234,24 +240,24 @@ class SchoolMembers(views.APIView):
 
         # add teacher data to sheet
         for teacher in teachers:
-            full_name = teacher.user.get_fullname()
+            full_name = teacher.get_fullname()
             role = 'TEACHER'
             try :
-                standard = teacher.classroom.standard
-                division = teacher.classroom.division
-            except ObjectDoesNotExist:
+                standard = teacher.classroom.first().standard.name
+                division = teacher.classroom.first().division
+            except :
                 standard = None
                 division = None
             members_sheet.append([full_name,role,standard,division])
         
         # add student data to sheet
         for student in students:
-            full_name = teacher.user.get_fullname()
+            full_name = teacher.get_fullname()
             role = 'STUDENT'
             latest_enrollment = student.enrollment_set.order_by(
                 '-enroll_date').first()
             try:
-                standard = latest_enrollment.classroom.standard
+                standard = latest_enrollment.classroom.standard.name
                 division = latest_enrollment.classroom.division
             except:
                 standard = None
@@ -280,6 +286,7 @@ class BestTeacher(views.APIView):
     permission
     - Only admins can give this request
     """
+    
     permission_classes = [permissions.IsAdmin]
 
     def get(self, request):
@@ -287,6 +294,7 @@ class BestTeacher(views.APIView):
         this get request returns a list of teacher along with their 
         performance in percentage
         """
+     
         classrooms = academics_models.Classroom.objects.all()
         # create a dictionary to store the total marks of each teacher
         teacher_performance = {}
@@ -330,7 +338,9 @@ class BestTeacher(views.APIView):
                 teacher_performance[classroom.teacher.user.user.username]=0
 
         # sort the teacher performance   
-        teacher_performance = dict(sorted(teacher_performance.items(), key=lambda x: x[1], reverse=True))
+        teacher_performance = dict(
+            sorted(teacher_performance.items(),
+                    key=lambda x: x[1], reverse=True))
 
         # enter teacher details into sheets
         for key,value in teacher_performance.items():

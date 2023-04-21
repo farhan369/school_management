@@ -15,6 +15,8 @@ admin.site.register(academics_models.ExamStandard)
 admin.site.register(academics_models.ExamStandardSubject)
 admin.site.register(academics_models.Enrollment)
 admin.site.register(academics_models.Attendance)
+admin.site.register(academics_models.Option)
+
 
 
 

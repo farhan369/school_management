@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
+
 
 from account.serializers import StudentSerializer
 from account import models as account_models
@@ -26,16 +28,18 @@ class SportsFestivalSerializer(serializers.ModelSerializer):
 class EventSerializer(serializers.ModelSerializer):
     # this serializer is for Event model
     fest = SportsFestivalSerializer(read_only = True)
-    fest_id = serializers.IntegerField(write_only = True)
     standards_eligible = serializers.ListField(write_only = True)
     class Meta:
         model = event_models.Event
-        fields = ['id','name','fest','event_type','fest_id','standards_eligible','standards']
+        fields = ['id','name','fest','event_type',
+                  'standards_eligible','standards']
     
     def create(self, validated_data):
+        fest_id = self.context['view'].kwargs.get('fest_id')
+        validated_data['fest'] = event_models.SportsFestival.objects.get(
+            id=fest_id)
         standards_eligible = validated_data.pop('standards_eligible')
-        event = event_models.Event.objects.create(**validated_data)
-        standards_eligible = eval(standards_eligible[0])
+        event = super().create(validated_data)
         for standard in standards_eligible:
             classrooms = academics.models.Classroom.objects.filter(standard=standard)
             standard = event.standards.add(*classrooms)
@@ -59,7 +63,7 @@ class EventRegistrationSerializer(serializers.ModelSerializer):
         """
         event_id = validated_data['event_id']
         event = event_models.Event.objects.get(id=event_id)
-        student = self.context['request'].user.account.student 
+        student = self.context['request'].user.student 
         latest_enrollment = student.enrollment_set.order_by(
                             '-enroll_date').first()
         eligible_classes = event.standards.all()
@@ -71,8 +75,10 @@ class EventRegistrationSerializer(serializers.ModelSerializer):
     
 
 class TrySerializer(serializers.ModelSerializer):
-    # this serializer is for try model
-    # to mark chances of student
+    """
+    this serializer is for try model
+    to mark chances of student
+    """
 
     event_id = serializers.IntegerField(write_only = True)
     student_username = serializers.CharField(write_only = True)
@@ -89,20 +95,19 @@ class TrySerializer(serializers.ModelSerializer):
         event_id = validated_data.pop('event_id')
         student_username = validated_data.pop('student_username')
         event = event_models.Event.objects.get(id=event_id)
-        student = account_models.Student.objects.get(user__user__username = student_username)
+        student = account_models.Student.objects.get(username = student_username)
         
         try:
             event_reg = event_models.EventRegistration.objects.get(
                         student=student,event=event)
         except Exception as e:
-            return Response({
+            raise ValidationError({
                 "message":"event registration not present","error":str(e)})
         tries_num = event_reg.tries.count()
         
         if tries_num >= 3:
-            return Response({"error": "Student has already made 3 tries"},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            raise ValidationError({"error": "Student has already made 3 tries"},
+                                  )
         try_object = event_models.Try.objects.create(event_reg=event_reg,**validated_data)
         return try_object
             
@@ -126,19 +131,19 @@ class LeaderboardSerializer(serializers.Serializer):
         
         # If Distance is event type the longest distance throwed is taken
         # If Time is event type shortest time runned is taken(input in seconds)
-        if instance.event_type == event_type_constants.DISTANCE:
+        if instance.event_type == event_type_constants.EventType.DISTANCE:
             ret = event_models.EventRegistration.objects.filter(
                         event_id=event_id).values(
-                        'student__user__user__username').annotate(
+                        'student__username').annotate(
                         max_result=Max('tries__result')).order_by(
-                        '-max_result','student__user__user__username')
+                        '-max_result','student__username')
         
-        elif instance.event_type == event_type_constants.TIME:
+        elif instance.event_type == event_type_constants.EventType.TIME:
             ret =  event_models.EventRegistration.objects.filter(
                         event_id=event_id).values(
-                        'student__user__user__username').annotate(
+                        'student__username').annotate(
                         max_result=Min('tries__result')).order_by(
-                        'max_result','student__user__user__username')
+                        'max_result','student__username')
 
         # Pagination each page will contain 5 results
         page_number = self.context['request'].query_params.get('page', 1)

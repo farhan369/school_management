@@ -115,6 +115,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
         model = account_models.Student
         fields = (
+            "id",
             "username",
             "email",
             "classroom",
@@ -152,7 +153,18 @@ class StudentSerializer(serializers.ModelSerializer):
             student.classroom.add(classroom)
             student.save()
             return student
+    
+    def update(self, instance, validated_data):
+        """overridden to add classroom to a student"""
 
+        classroom_id = validated_data.pop('classroom_id')
+        try:
+            classroom = Classroom.objects.get(
+                id=classroom_id)
+        except:
+            raise ObjectDoesNotExist("given classroom doesn't exist")
+        instance.classroom.add(classroom)
+        return super().update(instance, validated_data)
 
 class LoginSerializer(serializers.Serializer):
     """

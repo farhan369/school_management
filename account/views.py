@@ -95,7 +95,7 @@ class LoginView(ObtainAuthToken):
         )
 
 
-class CreateTeacherView(generics.ListCreateAPIView):
+class CreateTeacherView(viewsets.ModelViewSet):
     """
     This view managing teacher model
     This view handles post and get request
@@ -107,12 +107,13 @@ class CreateTeacherView(generics.ListCreateAPIView):
     filterset_class = filters.TeacherFilter
 
 
-class CreateStudentView(generics.ListCreateAPIView):
+class CreateStudentView(viewsets.ModelViewSet):
     """
     This view is used for create/list student
     it can be only accessed by teacher of that class or admin
     """
 
+    http_method_names = ['get', 'patch', 'delete']
     permission_classes = [permissions.IsStaff,IsAuthenticated]
     serializer_class = account_serializer.StudentSerializer
     queryset = account_models.Student.objects.all()

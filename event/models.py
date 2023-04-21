@@ -17,8 +17,8 @@ class SportsFestival(models.Model):
     """
 
     name = models.CharField(max_length=20)
-    from_date = models.DateField(null=True, blank=True)
-    to_date = models.DateField(null=True, blank=True)
+    from_date = models.DateField(blank=True)
+    to_date = models.DateField(blank=True)
 
     def __str__(self):
         return self.name
@@ -42,7 +42,7 @@ class Event(models.Model):
     standards = models.ManyToManyField(academics.models.Classroom,
                 related_name="events", blank=True, default=None)
     event_type = models.IntegerField(
-                 default=None,
+                 default=event_constants.EventType.DISTANCE,
                  choices=event_constants.EventType.EVENT_TYPE_CHOICE,
                  null=True,blank=True)
 

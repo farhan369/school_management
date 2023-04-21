@@ -70,7 +70,7 @@ class IsStudent(BasePermission):
         
         try:
             user_type = request.user.user_type
-            if user_type == account_constants.STUDENT:
+            if user_type == account_constants.UserType.STUDENT:
                 return True
             else:
                 return False

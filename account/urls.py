@@ -10,12 +10,6 @@ urlpatterns = [
      # login returns AuthToken
      path("login/", account_views.LoginView.as_view(), name="login"),
 
-     # to create and get all teacher instances (can filter by classroom)
-     path("teacher/", account_views.CreateTeacherView.as_view(), name="createteacher"),
-
-     # to create and get all student instances (can filter by classroom)
-     path("student/", account_views.CreateStudentView.as_view(), name="createstudent"),
-    
     #excel urls
 
      #returns an excel of classroom's academic and event data
@@ -33,5 +27,8 @@ urlpatterns = [
      path("teacherreport/",BestTeacher.as_view(), name="teacher_report"),
 
 ]
-router.register('admin', account_views.AdminViewSet,basename='admin')
+router.register('admin', account_views.AdminViewSet, basename='admin')
+router.register('student', account_views.CreateStudentView, basename='student')
+router.register('teacher', account_views.CreateTeacherView, basename='teacher')
+
 urlpatterns += router.urls

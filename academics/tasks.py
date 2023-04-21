@@ -39,10 +39,10 @@ def daily_attendance_email():
         date=today).select_related('user')
     
     attendance_df = pd.DataFrame(list(attendance_data.values(
-        'user__user__username', 'is_present')))
+        'user__username', 'is_present')))
     
     attendance_df = attendance_df.rename(columns={
-        'user__user__username': 'Name'})
+        'user__sername': 'Name'})
     
     attendance_df = attendance_df.style.applymap(apply_color, subset = ['is_present'])
     # Create an Excel file from the DataFrame

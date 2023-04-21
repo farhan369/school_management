@@ -170,8 +170,9 @@ class ExamResultView(generics.ListAPIView):
         Returns a queryset of exam instances filtered by the 'exam_id'
         parameter passed in the URL.
         """
+       
         exam_id = self.kwargs.get('exam_id')
-        queryset = academics_models.Exam.objects.filter(id=exam_id)
+        queryset = academics_models.ExamStandardSubject.objects.filter(id=exam_id)
         return queryset
     
 
@@ -182,9 +183,11 @@ class MarkAttendenceView(generics.CreateAPIView):
     permissions:
     - Only teacher and students can mark attendence
     """
-   
-    queryset = academics_models.Attendance.objects.all()
+    
     permission_classes = [account.permissions.IsStudent |
                            account.permissions.IsTeacher]
     serializer_class = academics_serializers.MarkAttendence
+    queryset = academics_models.Attendance.objects.all()
+    
+    
     

@@ -7,6 +7,7 @@ from account import models as account_models
 from . import models as academics_models
 
 import datetime 
+from datetime import date
 
 from rest_framework.exceptions import ValidationError
 
@@ -267,21 +268,18 @@ class ResponseSerializer(serializers.ModelSerializer):
         add multiple option selected by user in options field in Response
         """
         
-        student = self.context['request'].user.account.student 
+        validated_data['student'] = self.context['request'].user.student
         question_id = self.context['view'].kwargs.get('question_id')
         question = academics_models.Question.objects.get(id=question_id)
         responses = academics_models.Response.objects.filter(
-            student=student,option__question = question).all()
+            student=validated_data['student'],option__question = question).all()
         
         # Checks if the student already answered this question
         if responses:
-            return Response({"message":"already answered this question"})
+            raise ValidationError({"message":"already answered this question"})
 
-        options_data = validated_data.pop('options')
-        response =  academics_models.Response.objects.create(student=student)
-        
-        # removes the [] from options and makes the option int type
-        options = [*map(int, options_data[0].strip('[]').split(','))]
+        options = validated_data.pop('options')
+        response =  super().create(validated_data)
         for option in options:
             option = academics_models.Option.objects.get(id=option)
             response.option.add(option)
@@ -309,19 +307,19 @@ class ExamResultSerializer(serializers.Serializer):
             """
             
             ret = dict()
-            exam_id = instance.id
-            student_id = self.context['view'].kwargs.get('student_id')
-            exam = academics_models.Exam.objects.get(id=exam_id)
+            request = self.context.get('request')
+            student_id = request.headers.get('student_id')
             student = account_models.Student.objects.get(
-                user__user__id=student_id)
+                id=student_id)
             
             # set student and exam details
-            ret['exam'] = exam.name
-            ret['standard'] = exam.classroom.standard
-            ret['division'] = exam.classroom.division
-            ret['full_name'] = student.user.get_fullname()
+            ret['exam'] = instance.exam_standard.exam.name
+            ret['standard'] = instance.exam_standard.standard.name
+            ret['subject'] = instance.subject.name
+            ret['full_name'] = student.get_fullname()
+            print(ret)
             
-            questions = academics_models.Question.objects.filter(exam=exam)
+            questions = academics_models.Question.objects.filter(exam=instance)
             mark = 0
             for question in questions:
                 mark = mark + question.mark
@@ -329,7 +327,7 @@ class ExamResultSerializer(serializers.Serializer):
             
             # find the response of that student and calculate his mark
             responses = academics_models.Response.objects.filter(
-                student=student,option__question__exam =exam)
+                student=student,option__question__exam =instance)
             score =0
             
             for response in responses:
@@ -343,7 +341,7 @@ class AccountSerializer(serializers.ModelSerializer):
     this serializer is used as nested in MarkAttendence
     serializer to print id of the user marking attendence
     """
-   
+    password = serializers.CharField(write_only=True)
     class Meta:
         """A class that defines metadata for a Django ModelForm"""
         
@@ -357,7 +355,7 @@ class MarkAttendence(serializers.ModelSerializer):
     """
     
     user  = AccountSerializer(read_only = True)
-    is_present = serializers.BooleanField(read_only=True)
+    #is_present = serializers.BooleanField(read_only=True)
     
     class Meta:
         """A class that defines metadata for a Django ModelForm"""
@@ -371,9 +369,12 @@ class MarkAttendence(serializers.ModelSerializer):
         to get the user from authtoken
         """
         
-        user = self.context["request"].user.account
-        attendence = academics_models.Attendance.objects.create(
-            user=user,is_present=True)
-        return attendence
+        validated_data['user'] = self.context["request"].user
+        attended = academics_models.Attendance.objects.filter(
+            user=validated_data['user'],date=date.today())
+        if attended:
+            raise ValidationError({"message":"already marked attendence"})
+        else:
+            return super().create(validated_data)
 
 

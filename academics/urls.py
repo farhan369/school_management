@@ -19,11 +19,11 @@ urlpatterns = [
     path("question/", QuestionCreateView.as_view(), name='questions'),
 
      # to save the response of a student taking exam  
-    path("classroom/<int:id>/exam/<int:exam_id>/question/<int:question_id>/"
+    path("question/<int:question_id>/"
          ,ResponseView.as_view(),name='response'),
 
      # to get result of an student
-    path("classroom/<int:id>/exam/<int:exam_id>/student/<int:student_id>/"
+    path("exam/<int:exam_id>/result/"
          , ExamResultView.as_view(), name = 'result'),
 
     # to mark attendence
